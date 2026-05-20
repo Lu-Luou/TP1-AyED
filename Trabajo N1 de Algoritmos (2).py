@@ -1,27 +1,28 @@
 import random
+nombre = input("ingrese su nombre: ")
 numero_mostrado = random.randint(1, 1000)
 siguiente_numero = random.randint(1, 1000)
 while(numero_mostrado == siguiente_numero):
     siguiente_numero = random.randint(1, 1000)
-flag = 1
+jugando = True
 cuenta = 0
-while(flag == 1): 
-    print(numero_mostrado)
-    numero_ingresado = input("Ingrese Mayor o Menor: ")
-    while(numero_ingresado!="Mayor" and numero_ingresado!="Menor" and ...):
+while(jugando): 
+    print("el numero actual es:", numero_mostrado)
+    numero_ingresado = input("Ingrese Mayor o Menor: ").lower()
+    while numero_ingresado != "mayor" and numero_ingresado != "menor":
         print("Debe ingresar alguna opción valida")
-        numero_ingresado = input("Ingrese Mayor o Menor: ")
-    if(numero_ingresado == "Mayor" or numero_ingresado == "MAYOR" or numero_ingresado == "mayor"):
-         if(siguiente_numero>numero_mostrado):
+        numero_ingresado = input("Ingrese Mayor o Menor: ").lower()
+         
+        if(numero_ingresado == "mayor"):
+            if siguiente_numero > numero_mostrado:
              cuenta = cuenta+1
              numero_mostrado = siguiente_numero
              siguiente_numero = random.randint(1,1000)
              while(siguiente_numero==numero_mostrado):
                  siguiente_numero=random.randint(1,1000)
          else:
-             flag=0
+             jugando = False
     else:
-         if(numero_ingresado == "Menor" or numero_ingresado=="MENOR" or numero_ingresado=="menor"):
              if(siguiente_numero<numero_mostrado):
                  cuenta = cuenta+1
                  numero_mostrado=siguiente_numero
@@ -29,8 +30,8 @@ while(flag == 1):
                  while(siguiente_numero==numero_mostrado):
                      siguiente_numero=random.randint(1,1000)
          else:
-             flag=0
-print("Oh no,perdiste")
+             jugando = False
+print("Oh no,", nombre + ", perdiste")
 print("Tuviste una racha de",cuenta)
 
 
