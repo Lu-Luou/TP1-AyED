@@ -7,24 +7,10 @@ Comisión 1k05
 
 import random, os
 
-nombre = ""
-
-cont_juego1 = 0
-mejor_racha_juego1 = 0
-
-cont_juego2 = 0
-cont_victorias_juego2 = 0
-
-# cont_juego3 = 0 -> fuera de servicio
-# cont_victorias_juego2 = 0
-
-cont_juego4 = 0
-cont_victorias_juego4 = 0
-
 def juego1():
-    global nombre, mejor_racha_juego1, cont_juego1
     os.system("cls")
-    nombre = input("ingrese su nombre: ")
+    global nombre, cont_juego1, mejor_racha_juego1
+    nombre = input("Ingrese su nombre: ")
 
     numero_mostrado = random.randint(1, 1000)
     siguiente_numero = random.randint(1, 1000)
@@ -36,34 +22,34 @@ def juego1():
     racha = 0
 
     while jugando:
-        print("el numero actual es:", numero_mostrado)
-        numero_ingresado = input("Ingrese Mayor o Menor: ").lower()
+        print("El numero actual es:", numero_mostrado)
+        opcion_usuario = input("Ingrese Mayor o Menor: ").lower()
 
-        while numero_ingresado != "mayor" and numero_ingresado != "menor":
+        while opcion_usuario != "mayor" and opcion_usuario != "menor":
             print("Debe ingresar alguna opción valida")
-            numero_ingresado = input("Ingrese Mayor o Menor: ").lower()
+            opcion_usuario = input("Ingrese Mayor o Menor: ").lower()
 
-            if numero_ingresado == "mayor":
-                if siguiente_numero > numero_mostrado:
-                    mejor_racha_juego1 = mejor_racha_juego1 + 1
-                    numero_mostrado = siguiente_numero
-                    siguiente_numero = random.randint(1,1000)
-                    while siguiente_numero==numero_mostrado:
+        if opcion_usuario == "mayor":
+            if siguiente_numero > numero_mostrado:
+                racha = racha + 1
+                numero_mostrado = siguiente_numero
+                siguiente_numero = random.randint(1,1000)
+                while siguiente_numero==numero_mostrado:
                         siguiente_numero=random.randint(1,1000)
-                else:
-                    jugando = False
             else:
-                if siguiente_numero<numero_mostrado:
-                    mejor_racha_juego1 = mejor_racha_juego1 + 1
-                    numero_mostrado=siguiente_numero
+                jugando = False
+        else:
+            if siguiente_numero<numero_mostrado:
+                racha = racha + 1
+                numero_mostrado=siguiente_numero
+                siguiente_numero=random.randint(1,1000)
+                while siguiente_numero==numero_mostrado:
                     siguiente_numero=random.randint(1,1000)
-                    while siguiente_numero==numero_mostrado:
-                        siguiente_numero=random.randint(1,1000)
-                else:
-                    jugando = False
+            else:
+                jugando = False
 
-    print("Oh no," + str(nombre) + ", perdiste")
-    print("Tuviste una racha de " + str(mejor_racha_juego1) + " victorias")
+    print("Oh no," + str(nombre) + ", perdiste. El numero era " + str(siguiente_numero))
+    print("Tuviste una racha de " + str(racha) + " aciertos")
 
     if mejor_racha_juego1 < racha:
         mejor_racha_juego1 = racha
@@ -122,7 +108,8 @@ def cartel():
     print("... bajo construcción ...")
 
 def reporte():
-    return 0
+    print("........REPORTE DE JUEGOS. ")
+    print("Mayor o Menor, mejor racha: ", mejor_racha_juego1)
 
 def salir():
     print("Gracias por jugar, no apueste, juega por diversión")
@@ -138,38 +125,49 @@ def menu():
     print("S- Fin DEL PROGRAMA")
 
 
-def main():
-    """Función principal que controla el flujo del programa"""
-    global nombre, cont_juego1, mejor_racha_juego1, cont_juego2, cont_victorias_juego2, cont_juego4, cont_victorias_juego4
+nombre = ""
 
-    # Banner inicial
-    print("+------------------------------------------------------------+")
-    print("|                                                            |")
-    print("|  JUEGOS DE APUESTA PROHIBIDOS PARA MENORES DE EDAD         |")
-    print("|                                                            |")
-    print("|     EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD           |")
-    print("|                                                            |")
-    print("+------------------------------------------------------------+")
-    input()
-    os.system("cls")
+cont_juego1 = 0
+mejor_racha_juego1 = 0
 
-    # Loop principal del programa
-    opc = " "
-    while opc != "s":
-        menu()
-        opc = str(input("Ingrese su opcion: ")).lower()
+cont_juego2 = 0
+cont_victorias_juego2 = 0
 
-        while (opc < "a" or opc > "e") and opc != "s":
-            opc = str(input("Ingreso Invalido - reintente ")).lower()
+# cont_juego3 = 0 -> fuera de servicio
+# cont_victorias_juego2 = 0
 
-        match opc:
-            case "a": juego1()
-            case "b": juego2()
-            case "c": cartel()
-            case "d": juego4()
-            case "e": reporte()
-            case "s": salir()
+cont_juego4 = 0
+cont_victorias_juego4 = 0
 
+"""Función principal que controla el flujo del programa"""
 
-if __name__ == "__main__":
-    main()
+# Banner inicial
+print("+------------------------------------------------------------+")
+print("|                                                            |")
+print("|  JUEGOS DE APUESTA PROHIBIDOS PARA MENORES DE EDAD         |")
+print("|                                                            |")
+print("|     EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD           |")
+print("|                                                            |")
+print("+------------------------------------------------------------+")
+input()
+os.system("cls")
+
+# Loop principal del programa
+opc = " "
+while opc != "s":
+    menu()
+    opc = str(input("Ingrese su opcion: ")).lower()
+
+    while (opc < "a" or opc > "e") and opc != "s":
+        os.system("cls")
+        opc = str(input("Ingreso Invalido - reintente ")).lower()
+
+    match opc:
+        case "a": 
+            juego1()
+        case "b": juego2()
+    
+        case "c": cartel()
+        case "d": juego4()
+        case "e": reporte()
+        case "s": salir()
