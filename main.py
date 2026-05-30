@@ -24,9 +24,10 @@ cont_victorias_juego4 = 0
 
 
 def juego1():
+    global nombre, cont_juego1, mejor_racha_juego1
     os.system("cls")
     print("MAYOR O MENOR")
-    global nombre, cont_juego1, mejor_racha_juego1
+
     nombre = input("Ingrese su nombre: ")
 
     numero_mostrado = random.randint(1, 1000)
@@ -75,11 +76,12 @@ def juego1():
 
 def juego2():
     global nombre, cont_juego2, cont_victorias_juego2
+    os.system("cls")
+    print("NUMERO SECRETO")
+
     numero_secreto=random.randint(1,100)
     intentos=6
     ganador=0
-    os.system("cls")
-    print("NUMERO SECRETO")
     nombre =input("Ingrese su nombre: ")
 
     while(intentos > 0 and ganador==0):
@@ -107,23 +109,73 @@ def juego2():
     cont_juego2=cont_juego2+1
 
 def juego3():
+    os.system("cls")
+    print("BLACKJACK SIMPLE")
     cartel()
 
 def juego4():
-    return 0
+    global nombre, cont_juego4, cont_victorias_juego4
+    os.system("cls")
+    print("PAR O IMPAR")
+
+    saldo=10000
+    continua="S"
+
+    while continua=="S":
+        print("Usted tiene ",saldo," créditos disponibles para jugar")
+        apuesta=int(input("¿Cuantos créditos desea apostar en la siguiente jugada?"))
+        if(apuesta>saldo or 0>=apuesta):
+            while(apuesta>=saldo or 0>=apuesta):
+                apuesta=int(input("Ingrese una apuesta menor o igual a su saldo,mayor a 0"))
+        num1=random.randint(1,6)
+        num2=random.randint(1,6)
+        secreto=num1+num2
+        eleccion=input("¿La suma es Par o Impar?")
+        while(eleccion!= "Par" and eleccion!= "Impar"):
+            eleccion=input("Ingrese una ópcion valida entre Par o Impar")
+        if (eleccion=="Par" and secreto % 2 == 0):
+            print("Adivinaste!!!Tu apuesta de",apuesta,"créditos se ha duplicado!!! ")
+            saldo=saldo+apuesta
+            cont_victorias_juego4=cont_victorias_juego4+1
+            cont_juego4=cont_juego4+1
+            # print("Tu saldo actual es de",saldo,"créditos y tu racha es de",racha,)
+        else:
+            if (eleccion=="Impar" and secreto % 2 == 1):
+                print("Adivinaste!!!Tu apuesta de",apuesta,"creditos se ha duplicado!!! ")
+                saldo=saldo+apuesta
+                cont_victorias_juego4=cont_victorias_juego4+1
+                cont_juego4=cont_juego4+1
+                # print("Tu saldo actual es de",saldo,"créditos y tu racha es de ",racha,)
+            else:
+                print("No,fallaste")
+                saldo=saldo-apuesta
+                cont_juego4=cont_juego4+1
+                print("Tu saldo actual es de",saldo,"créditos")
+        continua=input("¿Desea volver a jugar?Ingrese S para si o N para no")
+        while(continua!="S" and continua!="N"):
+            continua=input("Ingrese una opción valida")
 
 def cartel():
     print("... bajo construcción ...")
-
-def reporte():
-    print("........REPORTE DE JUEGOS. ")
-    print("Mayor o Menor \n   mejor racha: ", mejor_racha_juego1, "\n   cantidad de partidas jugadas: ", cont_juego1)
-    print("Numero Secreto \n   cantidad de partidas jugadas: ", cont_juego2, "\n   cantidad de victorias: ", cont_victorias_juego2)
     input("Presione Enter para continuar...")
 
+def reporte():
+    os.system("cls")
+    if nombre == "":
+        print("No se han registrado juegos aún, por favor juegue alguna partida para generar un reporte.")
+        input("Presione Enter para continuar...")
+    else:
+        print("........REPORTE DE JUEGOS........ ")
+        print("Nombre del jugador: ", nombre, "\n")
+        print("Mayor o Menor: \n   mejor racha: ", mejor_racha_juego1, "\n   cantidad de partidas jugadas: ", cont_juego1, "\n")
+        print("Numero Secreto: \n   cantidad de partidas jugadas: ", cont_juego2, "\n   cantidad de victorias: ", cont_victorias_juego2, "\n")
+        print("BlackJack Simple: \n   fuera de servicio \n")
+        print("Par o Impar: \n   cantidad de partidas jugadas: ", cont_juego4, "\n   cantidad de victorias: ", cont_victorias_juego4, "\n")
+        input("Presione Enter para continuar...")
+
 def salir():
-    print("Gracias por jugar, no apueste, juega por diversión")
-    input()
+    os.system("cls")
+    input("Gracias por jugar, no apueste, juega por diversión!!")
 
 def menu():
     print("........MENU PRINCIPAL. ")
@@ -135,7 +187,7 @@ def menu():
     print("S- Fin DEL PROGRAMA")
 
 
-"""Función principal que controla el flujo del programa"""
+# Función principal que controla el flujo del programa
 
 # Banner inicial
 print("+------------------------------------------------------------+")
@@ -156,13 +208,12 @@ while opc != "s":
 
     while (opc < "a" or opc > "e") and opc != "s":
         os.system("cls")
-        opc = str(input("Ingreso Invalido - reintente ")).lower()
+        menu()
+        opc = str(input("Ingreso Invalido - reintente: ")).lower()
 
     match opc:
-        case "a":
-            juego1()
-        case "b":
-            juego2()
+        case "a": juego1()
+        case "b": juego2()
         case "c": cartel()
         case "d": juego4()
         case "e": reporte()
