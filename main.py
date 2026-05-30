@@ -7,6 +7,22 @@ Comisión 1k05
 
 import random, os
 
+
+nombre = ""
+
+cont_juego1 = 0
+mejor_racha_juego1 = 0
+
+cont_juego2 = 0
+cont_victorias_juego2 = 0
+
+# cont_juego3 = 0 -> fuera de servicio
+# cont_victorias_juego2 = 0
+
+cont_juego4 = 0
+cont_victorias_juego4 = 0
+
+
 def juego1():
     os.system("cls")
     print("MAYOR O MENOR")
@@ -36,7 +52,7 @@ def juego1():
                 numero_mostrado = siguiente_numero
                 siguiente_numero = random.randint(1,1000)
                 while siguiente_numero==numero_mostrado:
-                        siguiente_numero=random.randint(1,1000)
+                    siguiente_numero=random.randint(1,1000)
             else:
                 jugando = False
         else:
@@ -70,7 +86,7 @@ def juego2():
         print("Usted tiene",intentos,"intentos")
         numero = int(input("Ingrese un número entre 1 y 100: "))
         while int(numero) < 1 or int(numero) > 100:
-            numero=input("Por favor, ingrese un número válido entre 1 y 100")
+            numero=int(input("Por favor, ingrese un número válido entre 1 y 100: "))
         if numero==numero_secreto:
             ganador=1
         else:
@@ -91,7 +107,7 @@ def juego2():
     cont_juego2=cont_juego2+1
 
 def juego3():
-    return 0
+    cartel()
 
 def juego4():
     return 0
@@ -119,20 +135,6 @@ def menu():
     print("S- Fin DEL PROGRAMA")
 
 
-nombre = ""
-
-cont_juego1 = 0
-mejor_racha_juego1 = 0
-
-cont_juego2 = 0
-cont_victorias_juego2 = 0
-
-# cont_juego3 = 0 -> fuera de servicio
-# cont_victorias_juego2 = 0
-
-cont_juego4 = 0
-cont_victorias_juego4 = 0
-
 """Función principal que controla el flujo del programa"""
 
 # Banner inicial
@@ -157,9 +159,9 @@ while opc != "s":
         opc = str(input("Ingreso Invalido - reintente ")).lower()
 
     match opc:
-        case "a": 
+        case "a":
             juego1()
-        case "b": 
+        case "b":
             juego2()
         case "c": cartel()
         case "d": juego4()
