@@ -9,6 +9,7 @@ import random, os
 
 def juego1():
     os.system("cls")
+    print("MAYOR O MENOR")
     global nombre, cont_juego1, mejor_racha_juego1
     nombre = input("Ingrese su nombre: ")
 
@@ -48,8 +49,9 @@ def juego1():
             else:
                 jugando = False
 
-    print("Oh no," + str(nombre) + ", perdiste. El numero era " + str(siguiente_numero))
+    print("Oh no, " + str(nombre) + ", perdiste. El numero era " + str(siguiente_numero))
     print("Tuviste una racha de " + str(racha) + " aciertos")
+    input("Presione Enter para continuar...")
 
     if mejor_racha_juego1 < racha:
         mejor_racha_juego1 = racha
@@ -60,43 +62,33 @@ def juego2():
     numero_secreto=random.randint(1,100)
     intentos=6
     ganador=0
+    os.system("cls")
+    print("NUMERO SECRETO")
+    nombre =input("Ingrese su nombre: ")
 
-    nombre =input("Indique nombre del jugador")
-
-    while(intentos>0 and ganador==0):
+    while(intentos > 0 and ganador==0):
         print("Usted tiene",intentos,"intentos")
-        valido=False
-        while not valido:
-            numero=input("Ingrese un número entre 1 y 100")
-            try:
-                numero = int(numero)
-                if(numero >=1 and numero <=100):
-                    valido = True
-
-                else:
-                    print("Ingrese un número válido entre 1 y 100")
-
-            except:
-                print("Debe ingresar un número")
+        numero = int(input("Ingrese un número entre 1 y 100: "))
+        while int(numero) < 1 or int(numero) > 100:
+            numero=input("Por favor, ingrese un número válido entre 1 y 100")
         if numero==numero_secreto:
             ganador=1
-
         else:
-
-            if numero>numero_secreto:
+            if numero > numero_secreto:
                 print("El número secreto es menor")
                 intentos=intentos-1
-
             else:
                 print("El número secreto es mayor")
                 intentos=intentos-1
         if ganador==1:
-            print(nombre,"¡¡Enhorabuena,ganaste!!")
-
+            print("¡¡Enhorabuena,ganaste ", nombre,"!! El número secreto era ", numero_secreto)
+            cont_victorias_juego2=cont_victorias_juego2+1
         else:
             if intentos==0:
                 print("Oh no,perdiste el juego")
                 print("El número secreto era", numero_secreto)
+    input("Presione Enter para continuar...")        
+    cont_juego2=cont_juego2+1
 
 def juego3():
     return 0
@@ -109,7 +101,9 @@ def cartel():
 
 def reporte():
     print("........REPORTE DE JUEGOS. ")
-    print("Mayor o Menor, mejor racha: ", mejor_racha_juego1)
+    print("Mayor o Menor \n   mejor racha: ", mejor_racha_juego1, "\n   cantidad de partidas jugadas: ", cont_juego1)
+    print("Numero Secreto \n   cantidad de partidas jugadas: ", cont_juego2, "\n   cantidad de victorias: ", cont_victorias_juego2)
+    input("Presione Enter para continuar...")
 
 def salir():
     print("Gracias por jugar, no apueste, juega por diversión")
@@ -150,11 +144,11 @@ print("|     EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD           |")
 print("|                                                            |")
 print("+------------------------------------------------------------+")
 input()
-os.system("cls")
 
 # Loop principal del programa
 opc = " "
 while opc != "s":
+    os.system("cls")
     menu()
     opc = str(input("Ingrese su opcion: ")).lower()
 
@@ -165,8 +159,8 @@ while opc != "s":
     match opc:
         case "a": 
             juego1()
-        case "b": juego2()
-    
+        case "b": 
+            juego2()
         case "c": cartel()
         case "d": juego4()
         case "e": reporte()
