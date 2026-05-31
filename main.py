@@ -121,7 +121,7 @@ def juego2():
             if intentos==0:
                 print("Oh no, perdiste el juego")
                 print("El número secreto era", numero_secreto)
-    input("Presione Enter para continuar...")        
+    input("Presione Enter para continuar...")
     cont_juego2=cont_juego2+1
 
 def juego3():
@@ -143,7 +143,8 @@ def juego4():
     continua="S"
     nombre =input("Ingrese su nombre: ")
 
-    while continua=="S":
+    while continua.upper()=="S":
+        os.system("cls")
         print("Usted tiene ",saldo," créditos disponibles para jugar")
         apuesta=input("¿Cuántos créditos desea apostar en la siguiente jugada?: ")
         if(not apuesta.isdigit() or int(apuesta) > saldo or int(apuesta) <= 0):
@@ -157,25 +158,27 @@ def juego4():
         while(eleccion.lower()!= "par" and eleccion.lower()!= "impar"):
             eleccion=input("Ingrese una ópcion válida entre Par o Impar: ")
         if (eleccion.lower()=="par" and secreto % 2 == 0):
-            print("Adivinaste! Tu apuesta de ",apuesta," créditos se ha duplicado! ")
+            input("\nAdivinaste! Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
             saldo=saldo+apuesta
             cont_victorias_juego4=cont_victorias_juego4+1
             cont_juego4=cont_juego4+1
             # print("Tu saldo actual es de",saldo,"créditos y tu racha es de",racha,)
         else:
             if (eleccion.lower()=="impar" and secreto % 2 == 1):
-                print("Adivinaste! Tu apuesta de ",apuesta," créditos se ha duplicado! ")
+                input("\nAdivinaste! Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
                 saldo=saldo+apuesta
                 cont_victorias_juego4=cont_victorias_juego4+1
                 cont_juego4=cont_juego4+1
                 # print("Tu saldo actual es de",saldo,"créditos y tu racha es de ",racha,)
             else:
-                print("No,fallaste")
+                input("\nOh no!! Fallaste...")
                 saldo=saldo-apuesta
                 cont_juego4=cont_juego4+1
                 print("Tu saldo actual es de ",saldo," créditos")
+        os.system("cls")
+        print("Tu saldo actual es de ",saldo," créditos")
         continua=input("¿Desea volver a jugar? Ingrese S para si o N para no: ")
-        while(continua!="S" and continua!="N"):
+        while(continua.upper()!="S" and continua.upper()!="N"):
             continua=input("Ingrese una opción valida: ")
 
 def cartel():
