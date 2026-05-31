@@ -158,28 +158,32 @@ def juego4():
         while(eleccion.lower()!= "par" and eleccion.lower()!= "impar"):
             eleccion=input("Ingrese una ópcion válida entre Par o Impar: ")
         if (eleccion.lower()=="par" and secreto % 2 == 0):
-            input("\nAdivinaste! Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
+            input("\nAdivinaste! " + str(secreto) + " es Par. Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
             saldo=saldo+apuesta
             cont_victorias_juego4=cont_victorias_juego4+1
             cont_juego4=cont_juego4+1
             # print("Tu saldo actual es de",saldo,"créditos y tu racha es de",racha,)
         else:
             if (eleccion.lower()=="impar" and secreto % 2 == 1):
-                input("\nAdivinaste! Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
+                input("\nAdivinaste! " + str(secreto) + " es Impar. Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
                 saldo=saldo+apuesta
                 cont_victorias_juego4=cont_victorias_juego4+1
                 cont_juego4=cont_juego4+1
                 # print("Tu saldo actual es de",saldo,"créditos y tu racha es de ",racha,)
             else:
-                input("\nOh no!! Fallaste...")
+                input("\nOh no!! Fallaste... La suma de los dados es " + str(secreto) + " que es un número " + ("Par." if secreto % 2 == 0 else "Impar.") + " Tu apuesta de " + str(apuesta) + " créditos se perdió... ")
                 saldo=saldo-apuesta
                 cont_juego4=cont_juego4+1
                 print("Tu saldo actual es de ",saldo," créditos")
         os.system("cls")
         print("Tu saldo actual es de ",saldo," créditos")
-        continua=input("¿Desea volver a jugar? Ingrese S para si o N para no: ")
-        while(continua.upper()!="S" and continua.upper()!="N"):
-            continua=input("Ingrese una opción valida: ")
+        if saldo == 0:
+            input("Que mal... te quedaste sin créditos!! Presione Enter para salir del juego...")
+            continua = "N"
+        else:
+            continua=input("¿Desea volver a jugar? Ingrese S para si o N para no: ")
+            while(continua.upper()!="S" and continua.upper()!="N"):
+                continua=input("Ingrese una opción valida: ")
 
 def cartel():
     print("... bajo construcción ...")
@@ -204,6 +208,7 @@ def salir():
     input("Gracias por jugar, no apueste, juega por diversión!!")
 
 def menu():
+    os.system("cls")
     print("........\033[4m\033[92mMENU PRINCIPAL\033[0m ")
     print("A- \033[96m↑ Mayor o Menor ↓\033[0m ")
     print("B- \033[1m\033[91mNúmero Secreto [?]\033[0m ")
@@ -216,24 +221,22 @@ def menu():
 # Función principal que controla el flujo del programa
 
 # Banner inicial
-print("+------------------------------------------------------------+")
+print("\033[93m+------------------------------------------------------------+")
 print("|                                                            |")
 print("|  JUEGOS DE APUESTA PROHIBIDOS PARA MENORES DE EDAD         |")
 print("|                                                            |")
 print("|     EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD           |")
 print("|                                                            |")
-print("+------------------------------------------------------------+")
+print("+------------------------------------------------------------+\033[0m")
 input()
 
 # Loop principal del programa
 opc = " "
 while opc != "s":
-    os.system("cls")
     menu()
     opc = str(input("Ingrese su opción: ")).lower()
 
     while (opc < "a" or opc > "e") and opc != "s":
-        os.system("cls")
         menu()
         opc = str(input("Ingreso Invalido - reintente: ")).lower()
 
