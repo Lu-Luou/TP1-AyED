@@ -1,5 +1,5 @@
 '''
-Proyecto realizado por Joaquín del Castillo, Thiago Finoli, Guido Paciencia y Lucas Ruberto
+Proyecto realizado por Joaquín del Castillo, Thiago Finoli, Guido Pacienzia y Lucas Ruberto
 Comisión 1k05
 '''
 
@@ -21,7 +21,7 @@ cont_juego2 = 0
 cont_victorias_juego2 = 0
 
 # cont_juego3 = 0 -> fuera de servicio
-# cont_victorias_juego2 = 0
+# cont_victorias_juego3 = 0
 
 cont_juego4 = 0
 cont_victorias_juego4 = 0
@@ -162,14 +162,12 @@ def juego4():
             saldo=saldo+apuesta
             cont_victorias_juego4=cont_victorias_juego4+1
             cont_juego4=cont_juego4+1
-            # print("Tu saldo actual es de",saldo,"créditos y tu racha es de",racha,)
         else:
             if (eleccion.lower()=="impar" and secreto % 2 == 1):
                 input("\nAdivinaste! " + str(secreto) + " es Impar. Tu apuesta de " + str(apuesta) + " créditos se ha duplicado! ")
                 saldo=saldo+apuesta
                 cont_victorias_juego4=cont_victorias_juego4+1
                 cont_juego4=cont_juego4+1
-                # print("Tu saldo actual es de",saldo,"créditos y tu racha es de ",racha,)
             else:
                 input("\nOh no!! Fallaste... La suma de los dados es " + str(secreto) + " que es un número " + ("Par." if secreto % 2 == 0 else "Impar.") + " Tu apuesta de " + str(apuesta) + " créditos se perdió... ")
                 saldo=saldo-apuesta
