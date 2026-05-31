@@ -1,10 +1,13 @@
 '''
-Proyecto realizado por Joaquin del Castillo, Thiago Finoli, Guido Paciencia y Lucas Ruberto
+Proyecto realizado por Joaquin del Castillo, Thiago Finoli, Guido Pacienzia y Lucas Ruberto
 Comisión 1k05
 '''
 
 # Declaración de funciones, variables y librerias
-
+"""Declarativa de variables globales
+nombre : str
+cont_juego1, mejor_racha_juego1, cont_juego2, cont_victorias_juego2, cont_juego4, cont_victorias_juego4 : int
+"""
 import random, os
 
 
@@ -22,7 +25,11 @@ cont_victorias_juego2 = 0
 cont_juego4 = 0
 cont_victorias_juego4 = 0
 
-
+"""Declarativa de variables juego 1: Mayor o Menor
+nombre, opcion_usuario : str
+numero_mostrado, siguiente_numero, racha,cont_juego1, mejor_racha_juego1 : int
+jugando : bool
+"""
 def juego1():
     global nombre, cont_juego1, mejor_racha_juego1
     os.system("cls")
@@ -75,22 +82,27 @@ def juego1():
     cont_juego1 = cont_juego1 + 1
 
 def juego2():
+    """Declarativa de variables juego 2: Numero Secreto
+    nombre : str
+    numero_secreto, intentos, numero, cont_victorias_juego2, cont_juego2 : int
+    ganador : bool
+    """
     global nombre, cont_juego2, cont_victorias_juego2
     os.system("cls")
     print("NUMERO SECRETO")
 
     numero_secreto=random.randint(1,100)
     intentos=6
-    ganador=0
+    ganador= False
     nombre =input("Ingrese su nombre: ")
 
-    while(intentos > 0 and ganador==0):
+    while(intentos > 0 and ganador==False):
         print("Usted tiene",intentos,"intentos")
         numero = int(input("Ingrese un número entre 1 y 100: "))
         while int(numero) < 1 or int(numero) > 100:
             numero=int(input("Por favor, ingrese un número válido entre 1 y 100: "))
         if numero==numero_secreto:
-            ganador=1
+            ganador=True
         else:
             if numero > numero_secreto:
                 print("El número secreto es menor")
@@ -98,7 +110,7 @@ def juego2():
             else:
                 print("El número secreto es mayor")
                 intentos=intentos-1
-        if ganador==1:
+        if ganador==True:
             print("¡¡Enhorabuena,ganaste ", nombre,"!! El número secreto era ", numero_secreto)
             cont_victorias_juego2=cont_victorias_juego2+1
         else:
@@ -114,45 +126,37 @@ def juego3():
     cartel()
 
 def juego4():
+    """Declarativa de variables juego 4: Par o Impar
+    nombre, eleccion, continua : str
+    num1, num2, secreto, cont_juego4, cont_victorias_juego4 : int
+    """
     global nombre, cont_juego4, cont_victorias_juego4
     os.system("cls")
     print("PAR O IMPAR")
 
-    saldo=10000
     continua="S"
-
+    nombre=input("Ingrese su nombre: ")
     while continua=="S":
-        print("Usted tiene ",saldo," créditos disponibles para jugar")
-        apuesta=int(input("¿Cuantos créditos desea apostar en la siguiente jugada?"))
-        if(apuesta>saldo or 0>=apuesta):
-            while(apuesta>=saldo or 0>=apuesta):
-                apuesta=int(input("Ingrese una apuesta menor o igual a su saldo,mayor a 0"))
         num1=random.randint(1,6)
         num2=random.randint(1,6)
         secreto=num1+num2
-        eleccion=input("¿La suma es Par o Impar?")
-        while(eleccion!= "Par" and eleccion!= "Impar"):
+        eleccion=input("¿La suma es Par o Impar? : ")
+        while(eleccion.lower()!= "par" and eleccion.lower()!= "impar"):
             eleccion=input("Ingrese una ópcion valida entre Par o Impar")
-        if (eleccion=="Par" and secreto % 2 == 0):
-            print("Adivinaste!!!Tu apuesta de",apuesta,"créditos se ha duplicado!!! ")
-            saldo=saldo+apuesta
+        if (eleccion.lower()=="par" and secreto % 2 == 0):
+            print("Adivinaste!")
             cont_victorias_juego4=cont_victorias_juego4+1
             cont_juego4=cont_juego4+1
-            # print("Tu saldo actual es de",saldo,"créditos y tu racha es de",racha,)
         else:
-            if (eleccion=="Impar" and secreto % 2 == 1):
-                print("Adivinaste!!!Tu apuesta de",apuesta,"creditos se ha duplicado!!! ")
-                saldo=saldo+apuesta
+            if (eleccion.lower()=="impar" and secreto % 2 == 1):
+                print("Adivinaste!")
                 cont_victorias_juego4=cont_victorias_juego4+1
                 cont_juego4=cont_juego4+1
-                # print("Tu saldo actual es de",saldo,"créditos y tu racha es de ",racha,)
             else:
-                print("No,fallaste")
-                saldo=saldo-apuesta
+                print("fallaste")
                 cont_juego4=cont_juego4+1
-                print("Tu saldo actual es de",saldo,"créditos")
-        continua=input("¿Desea volver a jugar?Ingrese S para si o N para no")
-        while(continua!="S" and continua!="N"):
+        continua=input("¿Desea volver a jugar? Ingrese S para si o N para no: ")
+        while(continua.lower()!="s" and continua.lower()!="n"):
             continua=input("Ingrese una opción valida")
 
 def cartel():
@@ -182,7 +186,7 @@ def menu():
     print("A- Mayor o Menor ")
     print("B- Numero Secreto. ")
     print("C- BlackJack Simple ")
-    print("D- Dados.- Par o impar ")
+    print("D- Dados - Par o impar ")
     print("E- Reporte ")
     print("S- Fin DEL PROGRAMA")
 
@@ -214,7 +218,7 @@ while opc != "s":
     match opc:
         case "a": juego1()
         case "b": juego2()
-        case "c": cartel()
+        case "c": juego3()
         case "d": juego4()
         case "e": reporte()
         case "s": salir()
