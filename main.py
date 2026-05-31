@@ -147,9 +147,8 @@ def juego4():
         os.system("cls")
         print("Usted tiene ",saldo," créditos disponibles para jugar")
         apuesta=input("¿Cuántos créditos desea apostar en la siguiente jugada?: ")
-        if(not apuesta.isdigit() or int(apuesta) > saldo or int(apuesta) <= 0):
-            while(not apuesta.isdigit() or int(apuesta) > saldo or int(apuesta) <= 0):
-                apuesta=input("Ingrese una apuesta menor o igual a su saldo, mayor a 0: ")
+        while(not apuesta.isdigit() or int(apuesta) > saldo or int(apuesta) <= 0):
+            apuesta=input("Ingrese una apuesta menor o igual a su saldo, mayor a 0: ")
         apuesta=int(apuesta)
         num1=random.randint(1,6)
         num2=random.randint(1,6)
