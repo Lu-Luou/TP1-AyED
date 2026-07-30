@@ -10,7 +10,7 @@ cont_juego1, mejor_racha_juego1, cont_juego2, cont_victorias_juego2, cont_juego4
 """
 
 import random, os
-import numpy as np
+import array
 
 
 nombre = ""
@@ -131,7 +131,7 @@ CANT_VALORES, MAX_CARTAS_MANO : int (constantes)
 opcion_usuario, continua : str
 puntos_jugador, puntos_banca, indice_valor, i : int
 jugando : bool
-mano_jugador, mano_banca, cant_repartidas_por_valor : numpy array de int
+mano_jugador, mano_banca, cant_repartidas_por_valor : array.array de int ('i')
 cant_cartas_jugador, cant_cartas_banca : int
 """
 CANT_VALORES = 13
@@ -164,8 +164,16 @@ def calcular_puntos(mano, cant_cartas):
     return total
 
 def nombre_carta(indice_valor):
-    nombres_cartas = np.array(["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"])
-    return nombres_cartas[indice_valor]
+    if indice_valor <= 8:
+        return str(indice_valor + 2)
+    elif indice_valor == 9:
+        return "J"
+    elif indice_valor == 10:
+        return "Q"
+    elif indice_valor == 11:
+        return "K"
+    else:
+        return "A"
 
 def mostrar_mano(titular, mano, cant_cartas):
     texto_cartas = ""
@@ -188,10 +196,10 @@ def juego3():
         # cant_repartidas_por_valor[i] cuenta cuántas cartas del valor i
         # ya se repartieron en esta partida. Al ser un solo mazo de 52 cartas (4 palos),
         # cada valor puede salir como máximo 4 veces.
-        cant_repartidas_por_valor = np.zeros(CANT_VALORES, dtype=int)
+        cant_repartidas_por_valor = array.array('i', [0] * CANT_VALORES)
 
-        mano_jugador = np.zeros(MAX_CARTAS_MANO, dtype=int)
-        mano_banca = np.zeros(MAX_CARTAS_MANO, dtype=int)
+        mano_jugador = array.array('i', [0] * MAX_CARTAS_MANO)
+        mano_banca = array.array('i', [0] * MAX_CARTAS_MANO)
         cant_cartas_jugador = 0
         cant_cartas_banca = 0
 
