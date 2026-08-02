@@ -13,7 +13,7 @@ def validarnombre(cadena):
     return True
 ## Estas variables se deben declarar una sola vez en el main ni bien arranca el programa
 max_jugadores=10
-jugadores_par_impar = [None] * max_jugadores
+jugadores_par_impar = [""] * max_jugadores
 cont_jugadores_par_impar = 0
 saldo_jugadores=[1000]*10
 cont_victorias_par_impar = [0] * 10
