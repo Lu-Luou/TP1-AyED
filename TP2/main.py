@@ -6,41 +6,40 @@ Comisión 1k05
 """
 Declarativa de variables globales
 MAX_JUGADORES : int (constante, máximo de jugadores por juego)
-jugadores_mayor_menor, jugadores_numero_secreto, jugadores_blackjack, jugadores_par_impar : list de str, tamaño MAX_JUGADORES
+jugadores_mayor_menor, jugadores_numero_secreto, jugadores_blackjack, jugadores_par_impar : array de str, tamaño MAX_JUGADORES
 cant_jugadores_mayor_menor, cant_jugadores_numero_secreto, cant_jugadores_blackjack, cant_jugadores_par_impar : int
-cont_veces_jugadas_mayor_menor, mejor_racha_mayor_menor : array.array de int ('i')
-cont_veces_jugadas_numero_secreto, cont_victorias_numero_secreto, cont_derrotas_numero_secreto : array.array de int ('i')
-cont_veces_jugadas_blackjack, cont_victorias_blackjack : array.array de int ('i')
-cont_veces_jugadas_par_impar, cont_victorias_par_impar, saldo_par_impar : array.array de int ('i')
+cont_veces_jugadas_mayor_menor, mejor_racha_mayor_menor : array de int, tamaño MAX_JUGADORES
+cont_veces_jugadas_numero_secreto, cont_victorias_numero_secreto, cont_derrotas_numero_secreto : array de int, tamaño MAX_JUGADORES
+cont_veces_jugadas_blackjack, cont_victorias_blackjack : array de int, tamaño MAX_JUGADORES
+cont_veces_jugadas_par_impar, cont_victorias_par_impar, saldo_par_impar : array de int, tamaño MAX_JUGADORES
 """
 
 import random, os
-import array
 
 
 MAX_JUGADORES = 10
 
 jugadores_mayor_menor = [""] * MAX_JUGADORES
 cant_jugadores_mayor_menor = 0
-cont_veces_jugadas_mayor_menor = array.array('i', [0] * MAX_JUGADORES)
-mejor_racha_mayor_menor = array.array('i', [0] * MAX_JUGADORES)
+cont_veces_jugadas_mayor_menor =[0] * MAX_JUGADORES
+mejor_racha_mayor_menor = [0] * MAX_JUGADORES
 
 jugadores_numero_secreto = [""] * MAX_JUGADORES
 cant_jugadores_numero_secreto = 0
-cont_veces_jugadas_numero_secreto = array.array('i', [0] * MAX_JUGADORES)
-cont_victorias_numero_secreto = array.array('i', [0] * MAX_JUGADORES)
-cont_derrotas_numero_secreto = array.array('i', [0] * MAX_JUGADORES)
+cont_veces_jugadas_numero_secreto = [0] * MAX_JUGADORES
+cont_victorias_numero_secreto = [0] * MAX_JUGADORES
+cont_derrotas_numero_secreto = [0] * MAX_JUGADORES
 
 jugadores_blackjack = [""] * MAX_JUGADORES
 cant_jugadores_blackjack = 0
-cont_veces_jugadas_blackjack = array.array('i', [0] * MAX_JUGADORES)
-cont_victorias_blackjack = array.array('i', [0] * MAX_JUGADORES)
+cont_veces_jugadas_blackjack = [0] * MAX_JUGADORES
+cont_victorias_blackjack =[0] * MAX_JUGADORES
 
 jugadores_par_impar = [""] * MAX_JUGADORES
 cant_jugadores_par_impar = 0
-cont_veces_jugadas_par_impar = array.array('i', [0] * MAX_JUGADORES)
-cont_victorias_par_impar = array.array('i', [0] * MAX_JUGADORES)
-saldo_par_impar = array.array('i', [1000] * MAX_JUGADORES)
+cont_veces_jugadas_par_impar = [0] * MAX_JUGADORES
+cont_victorias_par_impar = [0] * MAX_JUGADORES
+saldo_par_impar = [1000] * MAX_JUGADORES
 
 """
 Declarativa de funciones y variables compartidas entre juegos
@@ -279,10 +278,10 @@ def juego3():
         # cant_repartidas_por_valor[i] cuenta cuántas cartas del valor i
         # ya se repartieron en esta partida. Al ser un solo mazo de 52 cartas (4 palos),
         # cada valor puede salir como máximo 4 veces.
-        cant_repartidas_por_valor = array.array('i', [0] * CANT_VALORES)
+        cant_repartidas_por_valor = [0] * CANT_VALORES
 
-        mano_jugador = array.array('i', [0] * MAX_CARTAS_MANO)
-        mano_banca = array.array('i', [0] * MAX_CARTAS_MANO)
+        mano_jugador = [0] * MAX_CARTAS_MANO
+        mano_banca = [0] * MAX_CARTAS_MANO
         cant_cartas_jugador = 0
         cant_cartas_banca = 0
 
@@ -375,12 +374,16 @@ def juego4():
             print("Error. Se permiten como máximo " + str(MAX_JUGADORES) + " jugadores en este juego.")
             input("Presione Enter para continuar...")
             return
-
+        
+    if saldo_par_impar[pos] <= 0:
+        print("Lo sentimos, " + nombre + ", no tienes créditos para jugar.")
+        input("Presione Enter para continuar...")
+        return
     continua="S"
 
     while continua.upper()=="S":
         os.system("cls")
-        print("Usted tiene ",saldo_par_impar[pos]," créditos disponibles para jugar")
+        print("Usted tiene $",saldo_par_impar[pos]," créditos disponibles para jugar")
         apuesta=input("¿Cuántos créditos desea apostar en la siguiente jugada?: ")
         while(not apuesta.isdigit() or int(apuesta) > saldo_par_impar[pos] or int(apuesta) <= 0):
             apuesta=input("Ingrese una apuesta menor o igual a su saldo, mayor a 0: ")
@@ -406,9 +409,9 @@ def juego4():
                 input("\nOh no!! Fallaste... La suma de los dados es " + str(secreto) + " que es un número " + ("Par." if secreto % 2 == 0 else "Impar.") + " Tu apuesta de " + str(apuesta) + " créditos se perdió... ")
                 saldo_par_impar[pos] = saldo_par_impar[pos] - apuesta
                 cont_veces_jugadas_par_impar[pos] = cont_veces_jugadas_par_impar[pos] + 1
-                print("Tu saldo actual es de ",saldo_par_impar[pos]," créditos")
+                print("Tu saldo actual es de $", saldo_par_impar[pos], " créditos")
         os.system("cls")
-        print("Tu saldo actual es de ",saldo_par_impar[pos]," créditos")
+        print("Tu saldo actual es de $", saldo_par_impar[pos], " créditos")
         if saldo_par_impar[pos] == 0:
             input("Que mal... te quedaste sin créditos!! Presione Enter para salir del juego...")
             continua = "N"
@@ -425,7 +428,7 @@ ascendente, intercambiar, jugo_algo : bool
 nombres, valores, nombres_copia, valores_copia : list / array.array
 """
 def copiar_arreglo_int(origen, cantidad):
-    copia = array.array('i', [0] * cantidad)
+    copia = [0] * cantidad
     for i in range(cantidad):
         copia[i] = origen[i]
     return copia
@@ -571,13 +574,13 @@ def menu():
 
 
 # Inicio del programa
-print("\033[93m+------------------------------------------------------------+")
+print("+------------------------------------------------------------+")
 print("|                                                            |")
 print("|  JUEGOS DE APUESTA PROHIBIDOS PARA MENORES DE EDAD         |")
 print("|                                                            |")
 print("|     EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD           |")
 print("|                                                            |")
-print("+------------------------------------------------------------+\033[0m")
+print("+------------------------------------------------------------+")
 input()
 
 # Loop principal del programa
