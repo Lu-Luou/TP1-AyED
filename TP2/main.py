@@ -56,16 +56,19 @@ def validarnombre(cadena):
 
 def buscar_jugador(nombre, jugadores, cant_jugadores):
     pos = -1
-    for i in range(cant_jugadores):
+    i = 0
+    while i < cant_jugadores and pos == -1:
         if jugadores[i] == nombre:
             pos = i
+        else:
+            i = i + 1
     return pos
 
 """
 Declarativa de variables juego 1: Mayor o Menor
 nombre, opcion_usuario : str
 pos, numero_mostrado, siguiente_numero, racha : int
-jugando : bool
+jugando, avanza : bool
 """
 def juego1():
     global cant_jugadores_mayor_menor
@@ -92,9 +95,6 @@ def juego1():
     numero_mostrado = random.randint(1, 1000)
     siguiente_numero = random.randint(1, 1000)
 
-    while numero_mostrado == siguiente_numero:
-        siguiente_numero = random.randint(1, 1000)
-
     jugando = True
     racha = 0
 
@@ -106,24 +106,24 @@ def juego1():
             print("Debe ingresar alguna opción válida")
             opcion_usuario = input("Ingrese Mayor o Menor: ").lower()
 
-        if opcion_usuario == "mayor":
-            if siguiente_numero > numero_mostrado:
-                racha = racha + 1
-                numero_mostrado = siguiente_numero
-                siguiente_numero = random.randint(1,1000)
-                while siguiente_numero==numero_mostrado:
-                    siguiente_numero=random.randint(1,1000)
-            else:
-                jugando = False
+        # Si vuelve a salir el mismo número el juego sigue, pero la racha no suma.
+        if siguiente_numero == numero_mostrado:
+            print("Salió de nuevo el " + str(siguiente_numero) + ", la racha se mantiene en " + str(racha))
+            avanza = True
         else:
-            if siguiente_numero<numero_mostrado:
-                racha = racha + 1
-                numero_mostrado=siguiente_numero
-                siguiente_numero=random.randint(1,1000)
-                while siguiente_numero==numero_mostrado:
-                    siguiente_numero=random.randint(1,1000)
+            if opcion_usuario == "mayor":
+                avanza = siguiente_numero > numero_mostrado
             else:
-                jugando = False
+                avanza = siguiente_numero < numero_mostrado
+
+            if avanza:
+                racha = racha + 1
+
+        if avanza:
+            numero_mostrado = siguiente_numero
+            siguiente_numero = random.randint(1, 1000)
+        else:
+            jugando = False
 
     print("Oh no, " + nombre + ", perdiste. El número era " + str(siguiente_numero))
     print("Tuviste una racha de " + str(racha) + " aciertos")
@@ -135,10 +135,13 @@ def juego1():
 
 """
 Declarativa de variables juego 2: Numero Secreto
+MAX_INTENTOS : int (constante, intentos disponibles por partida)
 nombre, numero : str
 pos, numero_secreto, intentos : int
 ganador : bool
 """
+MAX_INTENTOS = 6
+
 def juego2():
     global cant_jugadores_numero_secreto
     os.system("cls")
@@ -162,7 +165,7 @@ def juego2():
             return
 
     numero_secreto=random.randint(1,100)
-    intentos=6
+    intentos=MAX_INTENTOS
     ganador= False
 
     while(intentos > 0 and ganador==False):
@@ -171,17 +174,16 @@ def juego2():
         while not numero.isdigit() or int(numero) < 1 or int(numero) > 100:
             numero=input("Por favor, ingrese un número válido entre 1 y 100: ")
         numero=int(numero)
+        intentos=intentos-1
         if numero==numero_secreto:
             ganador=True
         else:
             if numero > numero_secreto:
                 print("El número secreto es menor")
-                intentos=intentos-1
             else:
                 print("El número secreto es mayor")
-                intentos=intentos-1
         if ganador==True:
-            print("¡¡Enhorabuena " + nombre + "! Ganaste con " + str(intentos) + " intentos restantes. El número secreto era", numero_secreto)
+            print("¡¡Enhorabuena " + nombre + "! Ganaste en " + str(MAX_INTENTOS - intentos) + " intentos. El número secreto era", numero_secreto)
             cont_victorias_numero_secreto[pos] = cont_victorias_numero_secreto[pos] + 1
         else:
             if intentos==0:
@@ -350,7 +352,7 @@ def juego3():
 
 """
 Declarativa de variables juego 4: Par o Impar
-nombre, eleccion, continua, apuesta_str : str
+nombre, eleccion, continua, apuesta_str, paridad : str
 pos, num1, num2, secreto, apuesta : int
 """
 def juego4():
@@ -406,7 +408,11 @@ def juego4():
                 cont_victorias_par_impar[pos] = cont_victorias_par_impar[pos] + 1
                 cont_veces_jugadas_par_impar[pos] = cont_veces_jugadas_par_impar[pos] + 1
             else:
-                input("\nOh no!! Fallaste... La suma de los dados es " + str(secreto) + " que es un número " + ("Par." if secreto % 2 == 0 else "Impar.") + " Tu apuesta de " + str(apuesta) + " créditos se perdió... ")
+                if secreto % 2 == 0:
+                    paridad = "Par."
+                else:
+                    paridad = "Impar."
+                input("\nOh no!! Fallaste... La suma de los dados es " + str(secreto) + " que es un número " + paridad + " Tu apuesta de " + str(apuesta) + " créditos se perdió... ")
                 saldo_par_impar[pos] = saldo_par_impar[pos] - apuesta
                 cont_veces_jugadas_par_impar[pos] = cont_veces_jugadas_par_impar[pos] + 1
                 print("Tu saldo actual es de $", saldo_par_impar[pos], " créditos")
@@ -570,7 +576,7 @@ def menu():
     print("C- \033[94m♦ BlackJack Simple ♦\033[0m ")
     print("D- \033[95m[1] Dados - Par o impar [6]\033[0m ")
     print("E- \033[93mReporte\033[0m ")
-    print("S- \033[97mFin DEL PROGRAMA\033[0m ")
+    print("F- \033[97mFin DEL PROGRAMA\033[0m ")
 
 
 # Inicio del programa
@@ -585,11 +591,11 @@ input()
 
 # Loop principal del programa
 opc = " "
-while opc != "s":
+while opc != "f":
     menu()
     opc = str(input("Ingrese su opción: ")).lower()
 
-    while (opc < "a" or opc > "e") and opc != "s":
+    while len(opc) != 1 or opc < "a" or opc > "f":
         menu()
         opc = str(input("Ingreso Invalido - reintente: ")).lower()
 
@@ -599,4 +605,4 @@ while opc != "s":
         case "c": juego3()
         case "d": juego4()
         case "e": reporte()
-        case "s": salir()
+        case "f": salir()
