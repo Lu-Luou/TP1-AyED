@@ -48,16 +48,16 @@ class Jugador:
 
 """
 Declarativa de constantes globales
-CARPETA, FD_CATEGORIAS, FD_OPCIONES, FD_JUGADORES : str (todos los archivos quedan en la carpeta del programa)
+CARPETA, FD_CATEGORIAS, FD_OPCIONES, FD_JUGADORES : str (todos los archivos quedan en la carpeta c:\\tp3\\)
 LARGO_NOMBRE, LARGO_NOMBRE_CATEGORIA, LARGO_PREGUNTA, LARGO_OBJETO : int
 CREDITO_INICIAL : float
 FILA_GANADAS, FILA_PERDIDAS : int (filas de la matriz juegos)
 JUEGO_MAYOR_MENOR, JUEGO_NUMERO_SECRETO, JUEGO_BLACKJACK, JUEGO_PAR_IMPAR, CANT_JUEGOS : int (columnas de la matriz juegos)
 """
-CARPETA = os.path.dirname(os.path.abspath(__file__))
-FD_CATEGORIAS = CARPETA + os.sep + "categorias.dat"
-FD_OPCIONES = CARPETA + os.sep + "opciones.dat"
-FD_JUGADORES = CARPETA + os.sep + "jugadores.dat"
+CARPETA = "c:\\tp3\\"
+FD_CATEGORIAS = CARPETA + "categorias.dat"
+FD_OPCIONES = CARPETA + "opciones.dat"
+FD_JUGADORES = CARPETA + "jugadores.dat"
 
 LARGO_NOMBRE = 30
 LARGO_NOMBRE_CATEGORIA = 30
@@ -79,7 +79,7 @@ CANT_JUEGOS = 4
 """
 Declarativa de funciones y variables generales
 cadena, resultado, mensaje, dato, respuesta, nombre : str
-largo, i, inicio, fin, minimo, maximo, numero, cant_puntos, cant_digitos : int
+largo, i, inicio, fin, cant_puntos, cant_digitos : int
 creditos, apuesta, valor : float
 valido, tiene_digitos : bool
 """
@@ -171,13 +171,6 @@ def pedir_entero(mensaje):
         print("Error: debe ingresar un número entero.")
         dato = recortar(input(mensaje))
     return int(dato)
-
-def pedir_entero_en_rango(mensaje, minimo, maximo):
-    numero = pedir_entero(mensaje)
-    while numero < minimo or numero > maximo:
-        print("Error: el número debe estar entre " + str(minimo) + " y " + str(maximo) + ".")
-        numero = pedir_entero(mensaje)
-    return numero
 
 def pedir_si_no(mensaje):
     respuesta = recortar(input(mensaje + " Ingrese S para sí o N para no: ")).upper()
@@ -337,10 +330,10 @@ def registrar_resultado(pos, juego, gano, variacion_creditos):
 """
 Declarativa de funciones y variables de Categorías y Opciones
 nombre, objeto, linea : str
-pos, pos_actual, pos_excluida, tam, nro, nro_categoria, ultimo, indice, cont, cantidad : int
+pos, pos_actual, pos_excluida, tam, nro, nro_categoria, ultimo, cantidad : int
 solo_activas, existe : bool
 cat : Categoria
-op, op_encontrada : Opcion
+op : Opcion
 """
 def buscar_categoria_por_numero(nro):
     pos = -1
@@ -447,21 +440,6 @@ def existe_objeto(nro_categoria, objeto):
         archivo.close()
     return existe
 
-def obtener_opcion(nro_categoria, indice):
-    # Devuelve la opción número 'indice' (contando desde 0) de la categoría, en el orden del archivo
-    op_encontrada = None
-    cont = 0
-    archivo = open(FD_OPCIONES, "rb")
-    tam = os.path.getsize(FD_OPCIONES)
-    while archivo.tell() < tam and op_encontrada == None:
-        op = pickle.load(archivo)
-        if op.nro_categoria == nro_categoria:
-            if cont == indice:
-                op_encontrada = op
-            cont = cont + 1
-    archivo.close()
-    return op_encontrada
-
 def mostrar_opciones(nro_categoria):
     cantidad = 0
     if os.path.exists(FD_OPCIONES):
@@ -507,6 +485,9 @@ def crear_datos_iniciales():
     grabar_categoria_inicial(archivo, 2, "Duración Películas", "¿Qué película dura más? (valor: minutos)")
     grabar_categoria_inicial(archivo, 3, "Habitantes Países", "¿Qué país tiene más habitantes? (valor: millones de habitantes)")
     grabar_categoria_inicial(archivo, 4, "Estreno Películas", "¿Qué película se estrenó más recientemente? (valor: año de estreno)")
+    grabar_categoria_inicial(archivo, 5, "Edad de Famosos", "¿Quién es mayor?")
+    grabar_categoria_inicial(archivo, 6, "Area de Paises(km²)", "¿Que pais es mas grande?")
+    grabar_categoria_inicial(archivo, 7, "Velocidad de Animales(km/h)", "¿Que animal es mas rapido?")
     archivo.close()
 
     archivo = open(FD_OPCIONES, "wb")
@@ -553,215 +534,302 @@ def crear_datos_iniciales():
     grabar_opcion_inicial(archivo, 4, 8, "Frozen", 2013)
     grabar_opcion_inicial(archivo, 4, 9, "Coco", 2017)
     grabar_opcion_inicial(archivo, 4, 10, "Barbie", 2023)
+
+    grabar_opcion_inicial(archivo, 5, 1, "Mirtha Legrand", 99)
+    grabar_opcion_inicial(archivo, 5, 2, "Paul McCartney", 84)
+    grabar_opcion_inicial(archivo, 5, 3, "Susana Gimenez", 82)
+    grabar_opcion_inicial(archivo, 5, 4, "Guillermo Francella", 71)
+    grabar_opcion_inicial(archivo, 5, 5, "Tom Hanks", 70)
+    grabar_opcion_inicial(archivo, 5, 6, "Ricardo Darin", 69)
+    grabar_opcion_inicial(archivo, 5, 7, "Marcelo Tinelli", 66)
+    grabar_opcion_inicial(archivo, 5, 8, "Tom Cruise", 64)
+    grabar_opcion_inicial(archivo, 5, 9, "Fito Paez", 63)
+    grabar_opcion_inicial(archivo, 5, 10, "Brad Pitt", 62)
+    grabar_opcion_inicial(archivo, 5, 11, "Elon Musk", 55)
+    grabar_opcion_inicial(archivo, 5, 12, "Shakira", 49)
+    grabar_opcion_inicial(archivo, 5, 13, "Mark Zuckerberg", 42)
+    grabar_opcion_inicial(archivo, 5, 14, "Cristiano Ronaldo", 41)
+    grabar_opcion_inicial(archivo, 5, 15, "Lady Gaga", 40)
+    grabar_opcion_inicial(archivo, 5, 16, "Lionel Messi", 39)
+    grabar_opcion_inicial(archivo, 5, 17, "Angel Di Maria", 38)
+    grabar_opcion_inicial(archivo, 5, 18, "Taylor Swift", 36)
+    grabar_opcion_inicial(archivo, 5, 19, "Neymar", 34)
+    grabar_opcion_inicial(archivo, 5, 20, "Bad Bunny", 32)
+    grabar_opcion_inicial(archivo, 5, 21, "Tini Stoessel", 29)
+    grabar_opcion_inicial(archivo, 5, 22, "Kylian Mbappe", 27)
+    grabar_opcion_inicial(archivo, 5, 23, "Lamine Yamal", 19)
+
+    grabar_opcion_inicial(archivo, 6, 1, "Rusia", 17098000)
+    grabar_opcion_inicial(archivo, 6, 2, "Canada", 9985000)
+    grabar_opcion_inicial(archivo, 6, 3, "Brasil", 8516000)
+    grabar_opcion_inicial(archivo, 6, 4, "Australia", 7692000)
+    grabar_opcion_inicial(archivo, 6, 5, "India", 3287000)
+    grabar_opcion_inicial(archivo, 6, 6, "Argentina", 2780000)
+    grabar_opcion_inicial(archivo, 6, 7, "Kazajistan", 2725000)
+    grabar_opcion_inicial(archivo, 6, 8, "Argelia", 2382000)
+    grabar_opcion_inicial(archivo, 6, 9, "RD Congo", 2345000)
+    grabar_opcion_inicial(archivo, 6, 10, "Arabia Saudita", 2150000)
+    grabar_opcion_inicial(archivo, 6, 11, "Mexico", 1964000)
+    grabar_opcion_inicial(archivo, 6, 12, "Indonesia", 1905000)
+    grabar_opcion_inicial(archivo, 6, 13, "Libia", 1760000)
+    grabar_opcion_inicial(archivo, 6, 14, "Iran", 1648000)
+    grabar_opcion_inicial(archivo, 6, 15, "Mongolia", 1564000)
+    grabar_opcion_inicial(archivo, 6, 16, "Peru", 1285000)
+    grabar_opcion_inicial(archivo, 6, 17, "Colombia", 1142000)
+    grabar_opcion_inicial(archivo, 6, 18, "Egipto", 1001000)
+    grabar_opcion_inicial(archivo, 6, 19, "Venezuela", 916000)
+    grabar_opcion_inicial(archivo, 6, 20, "Turquia", 784000)
+    grabar_opcion_inicial(archivo, 6, 21, "Chile", 756000)
+    grabar_opcion_inicial(archivo, 6, 22, "España", 506000)
+    grabar_opcion_inicial(archivo, 6, 23, "Japon", 378000)
+    grabar_opcion_inicial(archivo, 6, 24, "Alemania", 357000)
+    grabar_opcion_inicial(archivo, 6, 25, "Italia", 301000)
+    grabar_opcion_inicial(archivo, 6, 26, "Reino Unido", 244000)
+    grabar_opcion_inicial(archivo, 6, 27, "Uruguay", 176000)
+    grabar_opcion_inicial(archivo, 6, 28, "Grecia", 132000)
+    grabar_opcion_inicial(archivo, 6, 29, "Portugal", 92000)
+    grabar_opcion_inicial(archivo, 6, 30, "Suiza", 41000)
+
+    grabar_opcion_inicial(archivo, 7, 1, "Halcon peregrino (en picada)", 389)
+    grabar_opcion_inicial(archivo, 7, 2, "Aguila real (en picada)", 240)
+    grabar_opcion_inicial(archivo, 7, 3, "Vencejo comun", 112)
+    grabar_opcion_inicial(archivo, 7, 4, "Guepardo", 110)
+    grabar_opcion_inicial(archivo, 7, 5, "Berrendo", 88)
+    grabar_opcion_inicial(archivo, 7, 6, "Leon", 80)
+    grabar_opcion_inicial(archivo, 7, 7, "Tiburon mako", 74)
+    grabar_opcion_inicial(archivo, 7, 8, "Galgo", 72)
+    grabar_opcion_inicial(archivo, 7, 9, "Avestruz", 70)
+    grabar_opcion_inicial(archivo, 7, 10, "Coyote", 69)
+    grabar_opcion_inicial(archivo, 7, 11, "Cebra", 65)
+    grabar_opcion_inicial(archivo, 7, 12, "Lobo gris", 64)
+    grabar_opcion_inicial(archivo, 7, 13, "Delfin comun", 60)
+    grabar_opcion_inicial(archivo, 7, 14, "Leopardo", 58)
+    grabar_opcion_inicial(archivo, 7, 15, "Bufalo africano", 57)
+    grabar_opcion_inicial(archivo, 7, 16, "Orca", 56)
+    grabar_opcion_inicial(archivo, 7, 17, "Rinoceronte negro", 55)
+    grabar_opcion_inicial(archivo, 7, 18, "Zorro rojo", 50)
+    grabar_opcion_inicial(archivo, 7, 19, "Gato domestico", 48)
+    grabar_opcion_inicial(archivo, 7, 20, "Usain Bolt (humano)", 45)
+    grabar_opcion_inicial(archivo, 7, 21, "Elefante africano", 40)
+    grabar_opcion_inicial(archivo, 7, 22, "Pinguino papua", 36)
+    grabar_opcion_inicial(archivo, 7, 23, "Tortuga laud", 35)
+    grabar_opcion_inicial(archivo, 7, 24, "Hipopotamo", 30)
+    grabar_opcion_inicial(archivo, 7, 25, "Abeja", 24)
+    grabar_opcion_inicial(archivo, 7, 26, "Ardilla", 20)
+    grabar_opcion_inicial(archivo, 7, 27, "Cocodrilo (en tierra)", 17)
+    grabar_opcion_inicial(archivo, 7, 28, "Gallina", 14)
+    grabar_opcion_inicial(archivo, 7, 29, "Raton", 13)
+    grabar_opcion_inicial(archivo, 7, 30, "Mosca domestica", 7)
     archivo.close()
 
 
 """
 Declarativa de funciones y variables juego 1: Mayor o Menor
-RONDAS_MAYOR_MENOR, ACIERTOS_PARA_GANAR, MIN_OPCIONES_CATEGORIA : int (constantes)
-pos, pos_cat, nro, nro_categoria, cant_opciones, indice, ind_actual, ind_retador, ind_correcta : int
-ronda, respuesta, aciertos, cantidad, tam : int
+MIN_OPCIONES_CATEGORIA, MAX_OPCIONES_CATEGORIA : int (constantes)
+Posiciones_opciones : array de int, tamaño MAX_OPCIONES_CATEGORIA (posición en el archivo de cada opción
+                      de la categoría elegida; -1 = opción ya sorteada en la partida)
+cantidad_opc : int (cantidad de opciones cargadas en Posiciones_opciones)
+pos, poscate, cat_elegida, correctas, rondas, eleccion, casillero, indice_carga : int
 apuesta : float
-hay_libres, es_jugable : bool
-usadas : array de bool, tamaño cant_opciones (opciones ya mostradas en la partida)
-cat : Categoria
-actual, retador, correcta : Opcion
-jug : Jugador
+continuar, nombrecate, preguntacate, texto_cate, texto_eleccion, texto_continuar : str
+reg : Jugador
+regcate : Categoria
+op1, op2, opcion_sorteada : Opcion
 """
-RONDAS_MAYOR_MENOR = 6
-ACIERTOS_PARA_GANAR = 4
-MIN_OPCIONES_CATEGORIA = 6
+MIN_OPCIONES_CATEGORIA = 7
+MAX_OPCIONES_CATEGORIA = 100
+Posiciones_opciones = [-1] * MAX_OPCIONES_CATEGORIA
+cantidad_opc = 0
 
 def titulo_mayor_menor():
     print("\033[4m\033[96mMAYOR O MENOR\033[0m\n")
 
-def es_categoria_jugable(cat):
-    return cat.estado == "A" and contar_opciones(cat.nro_categoria) >= MIN_OPCIONES_CATEGORIA
-
-def mostrar_categorias_jugables():
-    cantidad = 0
+def contar_activas():
+    cant_activas = 0
     if os.path.exists(FD_CATEGORIAS):
-        archivo = open(FD_CATEGORIAS, "rb")
-        tam = os.path.getsize(FD_CATEGORIAS)
-        while archivo.tell() < tam:
-            cat = pickle.load(archivo)
-            if es_categoria_jugable(cat):
-                cantidad = cantidad + 1
-                print("   " + str(cat.nro_categoria) + " - " + recortar(cat.nombre_categoria))
-        archivo.close()
-    return cantidad
+        arLoCate = open(FD_CATEGORIAS, "rb")
+        tam_cate_cont = os.path.getsize(FD_CATEGORIAS)
+        while arLoCate.tell() < tam_cate_cont:
+            reg_cate_cont = pickle.load(arLoCate)
+            if reg_cate_cont.estado == "A":
+                cant_activas = cant_activas + 1
+        arLoCate.close()
+    return cant_activas
 
-def hay_categorias_jugables():
-    es_jugable = False
+def muestracategorias():
+    arLoCate = open(FD_CATEGORIAS, "rb")
+    tam_cate_muestra = os.path.getsize(FD_CATEGORIAS)
+    while arLoCate.tell() < tam_cate_muestra:
+        reg_cate_muestra = pickle.load(arLoCate)
+        if reg_cate_muestra.estado == "A":
+            print(reg_cate_muestra.nro_categoria, "-", reg_cate_muestra.nombre_categoria.strip())
+    arLoCate.close()
+
+def busqueda_categoria(nro_cate_buscada, solo_activas):
+    pos_cate_encontrada = -1
     if os.path.exists(FD_CATEGORIAS):
-        archivo = open(FD_CATEGORIAS, "rb")
-        tam = os.path.getsize(FD_CATEGORIAS)
-        while archivo.tell() < tam and not es_jugable:
-            cat = pickle.load(archivo)
-            es_jugable = es_categoria_jugable(cat)
-        archivo.close()
-    return es_jugable
+        arLoCate = open(FD_CATEGORIAS, "rb")
+        tam_cate_busq = os.path.getsize(FD_CATEGORIAS)
+        while arLoCate.tell() < tam_cate_busq and pos_cate_encontrada == -1:
+            pos_inicio_cate = arLoCate.tell()
+            reg_cate_busq = pickle.load(arLoCate)
+            if reg_cate_busq.nro_categoria == nro_cate_buscada:
+                if not solo_activas or reg_cate_busq.estado == "A":
+                    pos_cate_encontrada = pos_inicio_cate
+        arLoCate.close()
+    return pos_cate_encontrada
 
-def elegir_categoria_jugable():
-    print("Categorías disponibles:")
-    mostrar_categorias_jugables()
-    nro_categoria = -1
-    while nro_categoria == -1:
-        nro = pedir_entero("Elija el número de categoría: ")
-        pos_cat = buscar_categoria_por_numero(nro)
-        if pos_cat == -1:
-            print("Error: no existe una categoría con el número " + str(nro) + ".")
-        else:
-            cat = leer_registro(FD_CATEGORIAS, pos_cat)
-            if cat.estado != "A":
-                print("Error: la categoría " + str(nro) + " está inactiva.")
-            elif not es_categoria_jugable(cat):
-                print("Error: la categoría " + str(nro) + " tiene menos de " + str(MIN_OPCIONES_CATEGORIA) + " opciones cargadas.")
-            else:
-                nro_categoria = nro
-    return nro_categoria
+def determinaropciones(nro_cate_sorteo, es_primera):
+    # La primera vez carga en Posiciones_opciones la posición de cada opción de la categoría.
+    # En cada llamada sortea una que todavía no salió y la marca con -1.
+    global Posiciones_opciones, cantidad_opc
+    arLoOpc = open(FD_OPCIONES, "rb")
+    if es_primera == True:
+        tam_opc_sorteo = os.path.getsize(FD_OPCIONES)
+        indice_carga = 0
+        while arLoOpc.tell() < tam_opc_sorteo:
+            pos_inicio_opc = arLoOpc.tell()
+            reg_opc_sorteo = pickle.load(arLoOpc)
+            if reg_opc_sorteo.nro_categoria == nro_cate_sorteo:
+                Posiciones_opciones[indice_carga] = pos_inicio_opc
+                indice_carga = indice_carga + 1
+        cantidad_opc = indice_carga
+    casillero = random.randint(0, cantidad_opc - 1)
+    while Posiciones_opciones[casillero] == -1:
+        casillero = random.randint(0, cantidad_opc - 1)
+    arLoOpc.seek(Posiciones_opciones[casillero], 0)
+    opcion_sorteada = pickle.load(arLoOpc)
+    arLoOpc.close()
+    Posiciones_opciones[casillero] = -1
+    return opcion_sorteada
 
-def elegir_indice_opcion(cant_opciones, usadas, ind_actual):
-    # Elige al azar una opción que todavía no salió en la partida. Si ya salieron todas,
-    # elige cualquiera que sea distinta de la que está en juego.
-    hay_libres = False
-    for i in range(cant_opciones):
-        if not usadas[i]:
-            hay_libres = True
-    indice = random.randint(0, cant_opciones - 1)
-    if hay_libres:
-        while usadas[indice]:
-            indice = random.randint(0, cant_opciones - 1)
-    else:
-        while indice == ind_actual:
-            indice = random.randint(0, cant_opciones - 1)
-    return indice
+def pedir_categoria_mayor_menor():
+    print("Categorias")
+    muestracategorias()
+    texto_cate = input("Selecciona una categoria para iniciar el juego: ").strip()
+    while not texto_cate.isdigit() or busqueda_categoria(int(texto_cate), True) == -1:
+        texto_cate = input("Categoria invalida, elegi una de la lista: ").strip()
+    nro_cate_valida = int(texto_cate)
+    return nro_cate_valida
 
-def pedir_respuesta_mayor_menor(nro_opcion1, nro_opcion2):
-    dato = recortar(input("Elija su respuesta (" + str(nro_opcion1) + " o " + str(nro_opcion2) + "): "))
-    while not es_entero(dato) or (int(dato) != nro_opcion1 and int(dato) != nro_opcion2):
-        print("Error: debe ingresar " + str(nro_opcion1) + " o " + str(nro_opcion2) + ".")
-        dato = recortar(input("Elija su respuesta (" + str(nro_opcion1) + " o " + str(nro_opcion2) + "): "))
-    return int(dato)
+def pedir_eleccion(opcion_izq, opcion_der):
+    texto_eleccion = input("1- " + opcion_izq.objeto.strip() + "  /  2- " + opcion_der.objeto.strip() + ": ").strip()
+    while texto_eleccion != "1" and texto_eleccion != "2":
+        print("Error: debe ingresar 1 o 2.")
+        texto_eleccion = input("1- " + opcion_izq.objeto.strip() + "  /  2- " + opcion_der.objeto.strip() + ": ").strip()
+    eleccion_numero = int(texto_eleccion)
+    return eleccion_numero
 
-def jugar_rondas_mayor_menor(nro_categoria):
-    # Juega las 6 rondas de la partida y devuelve la cantidad de aciertos
-    cat = leer_registro(FD_CATEGORIAS, buscar_categoria_por_numero(nro_categoria))
-    cant_opciones = contar_opciones(nro_categoria)
-    usadas = [False] * cant_opciones
-
-    ind_actual = elegir_indice_opcion(cant_opciones, usadas, -1)
-    usadas[ind_actual] = True
-    actual = obtener_opcion(nro_categoria, ind_actual)
-    aciertos = 0
-
-    for ronda in range(1, RONDAS_MAYOR_MENOR + 1):
-        os.system("cls")
-        titulo_mayor_menor()
-        print("Categoría: " + recortar(cat.nombre_categoria) + "   |   Ronda " + str(ronda) + " de " + str(RONDAS_MAYOR_MENOR) + "   |   Aciertos: " + str(aciertos) + "\n")
-
-        ind_retador = elegir_indice_opcion(cant_opciones, usadas, ind_actual)
-        usadas[ind_retador] = True
-        retador = obtener_opcion(nro_categoria, ind_retador)
-
-        print(recortar(cat.pregunta))
-        print("   " + str(actual.nro_opcion) + ". " + recortar(actual.objeto) + "  /  " + str(retador.nro_opcion) + ". " + recortar(retador.objeto) + "\n")
-        respuesta = pedir_respuesta_mayor_menor(actual.nro_opcion, retador.nro_opcion)
-
-        print("\n   " + recortar(actual.objeto) + ": " + str(actual.valor) + "  /  " + recortar(retador.objeto) + ": " + str(retador.valor))
-
-        if actual.valor > retador.valor:
-            correcta = actual
-            ind_correcta = ind_actual
-        else:
-            correcta = retador
-            ind_correcta = ind_retador
-
-        if actual.valor == retador.valor:
-            print("\033[92mAmbos tienen el mismo valor, la respuesta se toma como correcta. +1 punto\033[0m")
-            aciertos = aciertos + 1
-        elif respuesta == correcta.nro_opcion:
-            print("\033[92m¡Correcto! +1 punto\033[0m")
-            aciertos = aciertos + 1
-        else:
-            print("\033[91mIncorrecto. La respuesta correcta era " + str(correcta.nro_opcion) + ". " + recortar(correcta.objeto) + "\033[0m")
-
-        # La opción correcta sigue en juego contra una nueva opción al azar
-        actual = correcta
-        ind_actual = ind_correcta
-        input("\nPresione Enter para continuar...")
-
-    return aciertos
+def preguntar_continuar():
+    texto_continuar = input("¿Desea volver a jugar? (S/N): ").strip().upper()
+    while texto_continuar != "S" and texto_continuar != "N":
+        print("Error: ingrese S o N.")
+        texto_continuar = input("¿Desea volver a jugar? (S/N): ").strip().upper()
+    return texto_continuar
 
 def juego_mayor_menor():
     os.system("cls")
     titulo_mayor_menor()
     pos = identificar_jugador()
-    jug = leer_registro(FD_JUGADORES, pos)
-
-    if jug.creditos <= 0:
-        print("Lo sentimos, no tiene créditos para apostar en este juego.")
-        input("\nPresione Enter para continuar...")
-    elif not hay_categorias_jugables():
-        print("No hay categorías activas con al menos " + str(MIN_OPCIONES_CATEGORIA) + " opciones para jugar.")
-        print("Un administrador debe cargarlas desde 'Administración de Juegos'.")
-        input("\nPresione Enter para continuar...")
-    else:
-        apuesta = pedir_apuesta(jug.creditos)
+    reg = leer_registro(FD_JUGADORES, pos)
+    continuar = "S"
+    while reg.creditos > 0 and continuar == "S":
         print()
-        nro_categoria = elegir_categoria_jugable()
-        aciertos = jugar_rondas_mayor_menor(nro_categoria)
-
-        os.system("cls")
-        titulo_mayor_menor()
-        print("Partida terminada: " + str(aciertos) + " aciertos de " + str(RONDAS_MAYOR_MENOR) + ".")
-        if aciertos >= ACIERTOS_PARA_GANAR:
-            print("\033[92m¡Ganaste! Se suman " + formato_creditos(apuesta) + " a tus créditos.\033[0m")
-            registrar_resultado(pos, JUEGO_MAYOR_MENOR, True, apuesta)
+        print("Saldo actual:", reg.creditos)
+        if contar_activas() == 0:
+            print("No hay categorias activas. Un administrador debe dar de alta alguna.")
+            continuar = "N"
         else:
-            print("\033[91mPerdiste, necesitabas al menos " + str(ACIERTOS_PARA_GANAR) + " aciertos. Se restan " + formato_creditos(apuesta) + " de tus créditos.\033[0m")
-            registrar_resultado(pos, JUEGO_MAYOR_MENOR, False, -apuesta)
-        jug = leer_registro(FD_JUGADORES, pos)
-        print("Créditos actuales: " + formato_creditos(jug.creditos))
-        input("\nPresione Enter para continuar...")
+            apuesta = pedir_apuesta(reg.creditos)
+            cat_elegida = pedir_categoria_mayor_menor()
+            if contar_opciones(cat_elegida) < MIN_OPCIONES_CATEGORIA:
+                print("Esa categoria tiene menos de " + str(MIN_OPCIONES_CATEGORIA) + " opciones y no se puede jugar.")
+                print("Un administrador debe agregar mas opciones.")
+                continuar = "N"
+            else:
+                poscate = busqueda_categoria(cat_elegida, True)
+                regcate = leer_registro(FD_CATEGORIAS, poscate)
+                nombrecate = regcate.nombre_categoria.strip()
+                preguntacate = regcate.pregunta.strip()
+                op1 = determinaropciones(cat_elegida, True)
+                op2 = determinaropciones(cat_elegida, False)
+                correctas = 0
+                rondas = 0
+                while rondas != 6:
+                    print()
+                    print("Ronda", rondas + 1, "de 6 -", nombrecate)
+                    print(preguntacate)
+                    eleccion = pedir_eleccion(op1, op2)
+                    rondas = rondas + 1
+                    print("1-", op1.objeto.strip(), op1.valor, "/ 2-", op2.objeto.strip(), op2.valor)
+                    if (eleccion == 1 and op1.valor >= op2.valor) or (eleccion == 2 and op2.valor >= op1.valor):
+                        print("La respuesta es correcta!!!")
+                        correctas = correctas + 1
+                    else:
+                        print("Ups... la respuesta es incorrecta...")
+                    if rondas != 6:
+                        input("Presione Enter para continuar...")
+                        if op1.valor >= op2.valor:
+                            op2 = determinaropciones(cat_elegida, False)
+                        else:
+                            op1 = determinaropciones(cat_elegida, False)
+                print()
+                print("Aciertos:", correctas, "de 6")
+                if correctas >= 4:
+                    print("Felicidades!!! Ha ganado", apuesta, "creditos!!!")
+                    registrar_resultado(pos, JUEGO_MAYOR_MENOR, True, apuesta)
+                else:
+                    print("Oh, no... Usted ha perdido", apuesta, "creditos.")
+                    registrar_resultado(pos, JUEGO_MAYOR_MENOR, False, -apuesta)
+                reg = leer_registro(FD_JUGADORES, pos)
+                print("Saldo actual:", reg.creditos)
+                if reg.creditos > 0:
+                    continuar = preguntar_continuar()
+    if reg.creditos <= 0:
+        print("No tiene mas creditos en su saldo")
+    input("Presione Enter para continuar...")
 
 
 """
 Declarativa de variables juego 2: Número Secreto
 MAX_INTENTOS : int (constante, intentos disponibles por partida)
-pos, numero_secreto, numero, intentos_restantes : int
-adivino : bool
+pos, numero_secreto, intentos : int
+numero, nom : str
+ganador : bool
 """
 MAX_INTENTOS = 5
 
 def juego_numero_secreto():
     os.system("cls")
-    print("\033[4m\033[91mNÚMERO SECRETO\033[0m\n")
+    print("\033[4m\033[91mNÚMERO SECRETO\033[0m")
     pos = identificar_jugador()
-
-    numero_secreto = random.randint(1, 100)
-    intentos_restantes = MAX_INTENTOS
-    adivino = False
-
-    print("\nPensé un número entre 1 y 100. ¡Adivinalo!")
-    while intentos_restantes > 0 and not adivino:
-        print("\nLe quedan " + str(intentos_restantes) + " intentos.")
-        numero = pedir_entero_en_rango("Ingrese un número entre 1 y 100: ", 1, 100)
-        intentos_restantes = intentos_restantes - 1
-        if numero == numero_secreto:
-            adivino = True
-        elif numero_secreto > numero:
-            print("El número secreto es MAYOR.")
+    nom = recortar(leer_registro(FD_JUGADORES, pos).nombre)
+    numero_secreto=random.randint(1,100)
+    intentos=MAX_INTENTOS
+    ganador= False
+    while(intentos > 0 and ganador==False):
+        print("Usted tiene",intentos,"intentos")
+        numero = input("Ingrese un número entre 1 y 100: ")
+        while not numero.isdigit() or int(numero) < 1 or int(numero) > 100:
+            numero=input("Por favor, ingrese un número válido entre 1 y 100: ")
+        numero=int(numero)
+        intentos=intentos-1
+        if numero==numero_secreto:
+            ganador=True
         else:
-            print("El número secreto es MENOR.")
-
-    if adivino:
-        print("\n\033[92m¡Enhorabuena! Adivinaste en " + str(MAX_INTENTOS - intentos_restantes) + " intentos. El número secreto era " + str(numero_secreto) + ".\033[0m")
-        registrar_resultado(pos, JUEGO_NUMERO_SECRETO, True, 0)
-    else:
-        print("\n\033[91mOh no, perdiste el juego. El número secreto era " + str(numero_secreto) + ".\033[0m")
-        registrar_resultado(pos, JUEGO_NUMERO_SECRETO, False, 0)
-    input("\nPresione Enter para continuar...")
+            if numero > numero_secreto:
+                print("El número secreto es menor")
+            else:
+                print("El número secreto es mayor")
+        if ganador==True:
+            print("¡¡Enhorabuena " + nom + "! Ganaste en " + str(MAX_INTENTOS - intentos) + " intentos. El número secreto era", numero_secreto)
+            registrar_resultado(pos, JUEGO_NUMERO_SECRETO, True, 0)
+        else:
+            if intentos==0:
+                print("Oh no, perdiste el juego")
+                print("El número secreto era", numero_secreto)
+                registrar_resultado(pos, JUEGO_NUMERO_SECRETO, False, 0)
+    input("Presione Enter para continuar...")
 
 
 """
