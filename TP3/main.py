@@ -108,20 +108,6 @@ def recortar(cadena):
         resultado = resultado + cadena[i]
     return resultado
 
-def es_entero(cadena):
-    # Admite un signo "-" opcional seguido de al menos un dígito
-    valido = len(cadena) > 0
-    inicio = 0
-    if valido and cadena[0] == "-":
-        inicio = 1
-        valido = len(cadena) > 1
-    i = inicio
-    while valido and i < len(cadena):
-        if cadena[i] < "0" or cadena[i] > "9":
-            valido = False
-        i = i + 1
-    return valido
-
 def es_real(cadena):
     # Admite dígitos con, como máximo, un punto decimal (sin signo)
     valido = True
@@ -167,7 +153,7 @@ def pedir_texto(mensaje, largo):
 
 def pedir_entero(mensaje):
     dato = recortar(input(mensaje))
-    while not es_entero(dato):
+    while not dato.isdigit():
         print("Error: debe ingresar un número entero.")
         dato = recortar(input(mensaje))
     return int(dato)
@@ -662,7 +648,7 @@ def muestracategorias():
     while arLoCate.tell() < tam_cate_muestra:
         reg_cate_muestra = pickle.load(arLoCate)
         if reg_cate_muestra.estado == "A":
-            print(reg_cate_muestra.nro_categoria, "-", reg_cate_muestra.nombre_categoria.strip())
+            print(reg_cate_muestra.nro_categoria, "-", recortar(reg_cate_muestra.nombre_categoria))
     arLoCate.close()
 
 def busqueda_categoria(nro_cate_buscada, solo_activas):
@@ -706,25 +692,25 @@ def determinaropciones(nro_cate_sorteo, es_primera):
 def pedir_categoria_mayor_menor():
     print("Categorias")
     muestracategorias()
-    texto_cate = input("Selecciona una categoria para iniciar el juego: ").strip()
+    texto_cate = recortar(input("Selecciona una categoria para iniciar el juego: "))
     while not texto_cate.isdigit() or busqueda_categoria(int(texto_cate), True) == -1:
-        texto_cate = input("Categoria invalida, elegi una de la lista: ").strip()
+        texto_cate = recortar(input("Categoria invalida, elegi una de la lista: "))
     nro_cate_valida = int(texto_cate)
     return nro_cate_valida
 
 def pedir_eleccion(opcion_izq, opcion_der):
-    texto_eleccion = input("1- " + opcion_izq.objeto.strip() + "  /  2- " + opcion_der.objeto.strip() + ": ").strip()
+    texto_eleccion = recortar(input("1- " + recortar(opcion_izq.objeto) + "  /  2- " + recortar(opcion_der.objeto) + ": "))
     while texto_eleccion != "1" and texto_eleccion != "2":
         print("Error: debe ingresar 1 o 2.")
-        texto_eleccion = input("1- " + opcion_izq.objeto.strip() + "  /  2- " + opcion_der.objeto.strip() + ": ").strip()
+        texto_eleccion = recortar(input("1- " + recortar(opcion_izq.objeto) + "  /  2- " + recortar(opcion_der.objeto) + ": "))
     eleccion_numero = int(texto_eleccion)
     return eleccion_numero
 
 def preguntar_continuar():
-    texto_continuar = input("¿Desea volver a jugar? (S/N): ").strip().upper()
+    texto_continuar = recortar(input("¿Desea volver a jugar? (S/N): ")).upper()
     while texto_continuar != "S" and texto_continuar != "N":
         print("Error: ingrese S o N.")
-        texto_continuar = input("¿Desea volver a jugar? (S/N): ").strip().upper()
+        texto_continuar = recortar(input("¿Desea volver a jugar? (S/N): ")).upper()
     return texto_continuar
 
 def juego_mayor_menor():
@@ -749,8 +735,8 @@ def juego_mayor_menor():
             else:
                 poscate = busqueda_categoria(cat_elegida, True)
                 regcate = leer_registro(FD_CATEGORIAS, poscate)
-                nombrecate = regcate.nombre_categoria.strip()
-                preguntacate = regcate.pregunta.strip()
+                nombrecate = recortar(regcate.nombre_categoria)
+                preguntacate = recortar(regcate.pregunta)
                 op1 = determinaropciones(cat_elegida, True)
                 op2 = determinaropciones(cat_elegida, False)
                 correctas = 0
@@ -761,7 +747,7 @@ def juego_mayor_menor():
                     print(preguntacate)
                     eleccion = pedir_eleccion(op1, op2)
                     rondas = rondas + 1
-                    print("1-", op1.objeto.strip(), op1.valor, "/ 2-", op2.objeto.strip(), op2.valor)
+                    print("1-", recortar(op1.objeto), op1.valor, "/ 2-", recortar(op2.objeto), op2.valor)
                     if (eleccion == 1 and op1.valor >= op2.valor) or (eleccion == 2 and op2.valor >= op1.valor):
                         print("La respuesta es correcta!!!")
                         correctas = correctas + 1
@@ -1130,9 +1116,10 @@ def reporte():
         while opc_reporte != "a" and opc_reporte != "b" and opc_reporte != "c":
             opc_reporte = recortar(input("Ingreso inválido - reintente: ")).lower()
 
-        match opc_reporte:
-            case "a": reporte_jugadores_por_creditos()
-            case "b": reporte_juegos_de_jugador()
+        if opc_reporte == "a":
+            reporte_jugadores_por_creditos()
+        elif opc_reporte == "b":
+            reporte_juegos_de_jugador()
 
 
 """
@@ -1228,10 +1215,12 @@ def administrar_categorias():
         while opc_categorias != "1" and opc_categorias != "2" and opc_categorias != "3" and opc_categorias != "4":
             opc_categorias = recortar(input("Ingreso inválido - reintente: "))
 
-        match opc_categorias:
-            case "1": alta_categoria()
-            case "2": modificacion_categoria()
-            case "3": baja_categoria()
+        if opc_categorias == "1":
+            alta_categoria()
+        elif opc_categorias == "2":
+            modificacion_categoria()
+        elif opc_categorias == "3":
+            baja_categoria()
 
 def alta_opciones():
     os.system("cls")
@@ -1299,9 +1288,10 @@ def administrar_opciones():
         while opc_opciones != "1" and opc_opciones != "2" and opc_opciones != "3":
             opc_opciones = recortar(input("Ingreso inválido - reintente: "))
 
-        match opc_opciones:
-            case "1": alta_opciones()
-            case "2": consulta_opciones()
+        if opc_opciones == "1":
+            alta_opciones()
+        elif opc_opciones == "2":
+            consulta_opciones()
 
 def administracion_juegos():
     os.system("cls")
@@ -1319,9 +1309,10 @@ def administracion_juegos():
             while opc_admin != "1" and opc_admin != "2" and opc_admin != "3":
                 opc_admin = recortar(input("Ingreso inválido - reintente: "))
 
-            match opc_admin:
-                case "1": administrar_categorias()
-                case "2": administrar_opciones()
+            if opc_admin == "1":
+                administrar_categorias()
+            elif opc_admin == "2":
+                administrar_opciones()
 
 
 """
@@ -1376,11 +1367,17 @@ while opc != "g":
         menu()
         opc = recortar(input("Ingreso inválido - reintente: ")).lower()
 
-    match opc:
-        case "a": juego_mayor_menor()
-        case "b": juego_numero_secreto()
-        case "c": juego_blackjack()
-        case "d": juego_par_impar()
-        case "e": reporte()
-        case "f": administracion_juegos()
-        case "g": salir()
+    if opc == "a":
+        juego_mayor_menor()
+    elif opc == "b":
+        juego_numero_secreto()
+    elif opc == "c":
+        juego_blackjack()
+    elif opc == "d":
+        juego_par_impar()
+    elif opc == "e":
+        reporte()
+    elif opc == "f":
+        administracion_juegos()
+    elif opc == "g":
+        salir()
