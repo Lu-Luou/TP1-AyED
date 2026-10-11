@@ -6,8 +6,6 @@ Trabajo Práctico Nro. 3 - Suite de Juegos "Azar y Lógica" con registros y arch
 
 import random, os, pickle, getpass
 
-from TP2.main import juego1, juego2
-
 """
 Declarativa de registros
 Categoria:
@@ -50,13 +48,14 @@ class Jugador:
 
 """
 Declarativa de constantes globales
-CARPETA, FD_CATEGORIAS, FD_OPCIONES, FD_JUGADORES : str (todos los archivos quedan en la carpeta c:\\tp3\\)
+CARPETA : str (carpeta donde está este programa; en la entrega es c:\\tp3\\)
+FD_CATEGORIAS, FD_OPCIONES, FD_JUGADORES : str (nombre físico de cada archivo)
 LARGO_NOMBRE, LARGO_NOMBRE_CATEGORIA, LARGO_PREGUNTA, LARGO_OBJETO : int
 CREDITO_INICIAL : float
 FILA_GANADAS, FILA_PERDIDAS : int (filas de la matriz juegos)
 JUEGO_MAYOR_MENOR, JUEGO_NUMERO_SECRETO, JUEGO_BLACKJACK, JUEGO_PAR_IMPAR, CANT_JUEGOS : int (columnas de la matriz juegos)
 """
-CARPETA = "c:\\tp3\\"
+CARPETA = os.path.dirname(os.path.abspath(__file__)) + os.sep
 FD_CATEGORIAS = CARPETA + "categorias.dat"
 FD_OPCIONES = CARPETA + "opciones.dat"
 FD_JUGADORES = CARPETA + "jugadores.dat"
@@ -80,12 +79,11 @@ CANT_JUEGOS = 4
 
 """
 Declarativa de funciones y variables generales
-cadena, resultado, mensaje, dato, respuesta, nombre : str
-largo, i, inicio, fin, cant_puntos, cant_digitos : int
+cadena, resultado, mensaje, dato, respuesta, opcion1, opcion2, primera, ultima, opc, nombre, titulo, color, texto1, texto2 : str
+largo, i, inicio, fin, cant_puntos, cant_digitos, minimo, maximo : int
 creditos, apuesta, valor : float
 valido, tiene_digitos : bool
 """
-
 def ajustar_cadena(cadena, largo):
     # Devuelve la cadena con exactamente 'largo' caracteres: la recorta o la completa con espacios,
     # así todos los registros guardan los campos de texto con longitud fija.
@@ -146,6 +144,24 @@ def validar_nombre(cadena):
 def formato_creditos(valor):
     return f"${valor:.2f}"
 
+def encabezado(titulo, color):
+    # Limpia la pantalla y muestra el título subrayado con el color ANSI indicado
+    os.system("cls")
+    print("\033[4m\033[" + color + "m" + titulo + "\033[0m\n")
+
+def pausa():
+    input("\nPresione Enter para continuar...")
+
+def cartel(texto1, texto2):
+    # Recuadro grande dibujado con caracteres, con dos líneas de texto
+    print("+------------------------------------------------------------+")
+    print("|                                                            |")
+    print("|  " + ajustar_cadena(texto1, 58) + "|")
+    print("|                                                            |")
+    print("|  " + ajustar_cadena(texto2, 58) + "|")
+    print("|                                                            |")
+    print("+------------------------------------------------------------+")
+
 def pedir_texto(mensaje, largo):
     dato = recortar(input(mensaje))
     while not validar_texto(dato, largo):
@@ -160,11 +176,30 @@ def pedir_entero(mensaje):
         dato = recortar(input(mensaje))
     return int(dato)
 
-def pedir_si_no(mensaje):
-    respuesta = recortar(input(mensaje + " Ingrese S para sí o N para no: ")).upper()
-    while respuesta != "S" and respuesta != "N":
-        respuesta = recortar(input("Opción inválida. Ingrese S para sí o N para no: ")).upper()
+def pedir_entero_rango(mensaje, minimo, maximo):
+    dato = recortar(input(mensaje))
+    while not dato.isdigit() or int(dato) < minimo or int(dato) > maximo:
+        print("Error: debe ingresar un número entero entre " + str(minimo) + " y " + str(maximo) + ".")
+        dato = recortar(input(mensaje))
+    return int(dato)
+
+def pedir_entre_dos(mensaje, opcion1, opcion2):
+    # Devuelve la respuesta en minúsculas; sólo acepta opcion1 u opcion2 (sin distinguir mayúsculas)
+    respuesta = recortar(input(mensaje)).lower()
+    while respuesta != opcion1 and respuesta != opcion2:
+        print("Opción inválida: ingrese " + opcion1 + " o " + opcion2 + ".")
+        respuesta = recortar(input(mensaje)).lower()
     return respuesta
+
+def pedir_si_no(mensaje):
+    return pedir_entre_dos(mensaje + " (S/N): ", "s", "n") == "s"
+
+def pedir_opcion(primera, ultima):
+    # Opción de un menú: un único carácter entre 'primera' y 'ultima'
+    opc = recortar(input("Ingrese su opción: ")).lower()
+    while len(opc) != 1 or opc < primera or opc > ultima:
+        opc = recortar(input("Ingreso inválido - reintente: ")).lower()
+    return opc
 
 def pedir_nombre_jugador():
     nombre = recortar(input("Ingrese su nombre: "))
@@ -613,221 +648,148 @@ def crear_datos_iniciales():
 
 """
 Declarativa de funciones y variables juego 1: Mayor o Menor
-MIN_OPCIONES_CATEGORIA, MAX_OPCIONES_CATEGORIA : int (constantes)
-Posiciones_opciones : array de int, tamaño MAX_OPCIONES_CATEGORIA (posición en el archivo de cada opción
-                      de la categoría elegida; -1 = opción ya sorteada en la partida)
-cantidad_opc : int (cantidad de opciones cargadas en Posiciones_opciones)
-pos, poscate, cat_elegida, correctas, rondas, eleccion, casillero, indice_carga : int
+CANT_RONDAS, MIN_ACIERTOS, MIN_OPCIONES_CATEGORIA, MAX_OPCIONES_CATEGORIA : int (constantes)
+posiciones : array de int, tamaño MAX_OPCIONES_CATEGORIA (posición en el archivo de cada opción
+             de la categoría elegida; -1 = opción ya sorteada en la partida)
+pos, pos_actual, tam, cantidad, casillero, correctas, ronda, eleccion, nro_categoria : int
 apuesta : float
-continuar, nombrecate, preguntacate, texto_cate, texto_eleccion, texto_continuar : str
-reg : Jugador
-regcate : Categoria
-op1, op2, opcion_sorteada : Opcion
+continuar : bool
+jug : Jugador
+cat : Categoria
+op, op1, op2 : Opcion
 """
-MIN_OPCIONES_CATEGORIA = 7
+CANT_RONDAS = 6
+MIN_ACIERTOS = 4
+MIN_OPCIONES_CATEGORIA = CANT_RONDAS + 1     # 2 opciones en la primera ronda y una nueva en cada una de las siguientes
 MAX_OPCIONES_CATEGORIA = 100
-Posiciones_opciones = [-1] * MAX_OPCIONES_CATEGORIA
-cantidad_opc = 0
 
-def titulo_mayor_menor():
-    print("\033[4m\033[96mMAYOR O MENOR\033[0m\n")
+def cargar_opciones(nro_categoria, posiciones):
+    # Guarda en 'posiciones' dónde empieza cada opción de la categoría y devuelve cuántas guardó
+    cantidad = 0
+    archivo = open(FD_OPCIONES, "rb")
+    tam = os.path.getsize(FD_OPCIONES)
+    while archivo.tell() < tam and cantidad < MAX_OPCIONES_CATEGORIA:
+        pos_actual = archivo.tell()
+        op = pickle.load(archivo)
+        if op.nro_categoria == nro_categoria:
+            posiciones[cantidad] = pos_actual
+            cantidad = cantidad + 1
+    archivo.close()
+    return cantidad
 
-def contar_activas():
-    cant_activas = 0
-    if os.path.exists(FD_CATEGORIAS):
-        arLoCate = open(FD_CATEGORIAS, "rb")
-        tam_cate_cont = os.path.getsize(FD_CATEGORIAS)
-        while arLoCate.tell() < tam_cate_cont:
-            reg_cate_cont = pickle.load(arLoCate)
-            if reg_cate_cont.estado == "A":
-                cant_activas = cant_activas + 1
-        arLoCate.close()
-    return cant_activas
+def sortear_opcion(posiciones, cantidad):
+    # Sortea una opción que todavía no salió en la partida y la marca con -1
+    casillero = random.randint(0, cantidad - 1)
+    while posiciones[casillero] == -1:
+        casillero = random.randint(0, cantidad - 1)
+    op = leer_registro(FD_OPCIONES, posiciones[casillero])
+    posiciones[casillero] = -1
+    return op
 
-def muestracategorias():
-    arLoCate = open(FD_CATEGORIAS, "rb")
-    tam_cate_muestra = os.path.getsize(FD_CATEGORIAS)
-    while arLoCate.tell() < tam_cate_muestra:
-        reg_cate_muestra = pickle.load(arLoCate)
-        if reg_cate_muestra.estado == "A":
-            print(reg_cate_muestra.nro_categoria, "-", recortar(reg_cate_muestra.nombre_categoria))
-    arLoCate.close()
-
-def busqueda_categoria(nro_cate_buscada, solo_activas):
-    pos_cate_encontrada = -1
-    if os.path.exists(FD_CATEGORIAS):
-        arLoCate = open(FD_CATEGORIAS, "rb")
-        tam_cate_busq = os.path.getsize(FD_CATEGORIAS)
-        while arLoCate.tell() < tam_cate_busq and pos_cate_encontrada == -1:
-            pos_inicio_cate = arLoCate.tell()
-            reg_cate_busq = pickle.load(arLoCate)
-            if reg_cate_busq.nro_categoria == nro_cate_buscada:
-                if not solo_activas or reg_cate_busq.estado == "A":
-                    pos_cate_encontrada = pos_inicio_cate
-        arLoCate.close()
-    return pos_cate_encontrada
-
-def determinaropciones(nro_cate_sorteo, es_primera):
-    # La primera vez carga en Posiciones_opciones la posición de cada opción de la categoría.
-    # En cada llamada sortea una que todavía no salió y la marca con -1.
-    global Posiciones_opciones, cantidad_opc
-    arLoOpc = open(FD_OPCIONES, "rb")
-    if es_primera == True:
-        tam_opc_sorteo = os.path.getsize(FD_OPCIONES)
-        indice_carga = 0
-        while arLoOpc.tell() < tam_opc_sorteo:
-            pos_inicio_opc = arLoOpc.tell()
-            reg_opc_sorteo = pickle.load(arLoOpc)
-            if reg_opc_sorteo.nro_categoria == nro_cate_sorteo:
-                Posiciones_opciones[indice_carga] = pos_inicio_opc
-                indice_carga = indice_carga + 1
-        cantidad_opc = indice_carga
-    casillero = random.randint(0, cantidad_opc - 1)
-    while Posiciones_opciones[casillero] == -1:
-        casillero = random.randint(0, cantidad_opc - 1)
-    arLoOpc.seek(Posiciones_opciones[casillero], 0)
-    opcion_sorteada = pickle.load(arLoOpc)
-    arLoOpc.close()
-    Posiciones_opciones[casillero] = -1
-    return opcion_sorteada
-
-def pedir_categoria_mayor_menor():
-    print("Categorias")
-    muestracategorias()
-    texto_cate = recortar(input("Selecciona una categoria para iniciar el juego: "))
-    while not texto_cate.isdigit() or busqueda_categoria(int(texto_cate), True) == -1:
-        texto_cate = recortar(input("Categoria invalida, elegi una de la lista: "))
-    nro_cate_valida = int(texto_cate)
-    return nro_cate_valida
-
-def pedir_eleccion(opcion_izq, opcion_der):
-    texto_eleccion = recortar(input("1- " + recortar(opcion_izq.objeto) + "  /  2- " + recortar(opcion_der.objeto) + ": "))
-    while texto_eleccion != "1" and texto_eleccion != "2":
-        print("Error: debe ingresar 1 o 2.")
-        texto_eleccion = recortar(input("1- " + recortar(opcion_izq.objeto) + "  /  2- " + recortar(opcion_der.objeto) + ": "))
-    eleccion_numero = int(texto_eleccion)
-    return eleccion_numero
-
-def preguntar_continuar():
-    texto_continuar = recortar(input("¿Desea volver a jugar? (S/N): ")).upper()
-    while texto_continuar != "S" and texto_continuar != "N":
-        print("Error: ingrese S o N.")
-        texto_continuar = recortar(input("¿Desea volver a jugar? (S/N): ")).upper()
-    return texto_continuar
+def jugar_partida_mayor_menor(cat):
+    # Juega las rondas con la categoría elegida y devuelve la cantidad de aciertos
+    posiciones = [-1] * MAX_OPCIONES_CATEGORIA
+    cantidad = cargar_opciones(cat.nro_categoria, posiciones)
+    op1 = sortear_opcion(posiciones, cantidad)
+    op2 = sortear_opcion(posiciones, cantidad)
+    correctas = 0
+    for ronda in range(1, CANT_RONDAS + 1):
+        print("\nRonda " + str(ronda) + " de " + str(CANT_RONDAS) + " - " + recortar(cat.nombre_categoria))
+        print(recortar(cat.pregunta))
+        eleccion = pedir_entero_rango("1- " + recortar(op1.objeto) + "  /  2- " + recortar(op2.objeto) + ": ", 1, 2)
+        print("1- " + recortar(op1.objeto) + " " + str(op1.valor) + "  /  2- " + recortar(op2.objeto) + " " + str(op2.valor))
+        if (eleccion == 1 and op1.valor >= op2.valor) or (eleccion == 2 and op2.valor >= op1.valor):
+            print("¡La respuesta es correcta!")
+            correctas = correctas + 1
+        else:
+            print("Ups... la respuesta es incorrecta.")
+        if ronda < CANT_RONDAS:
+            input("Presione Enter para continuar...")
+            # La opción correcta (la de mayor valor) sigue en la ronda siguiente
+            if op1.valor >= op2.valor:
+                op2 = sortear_opcion(posiciones, cantidad)
+            else:
+                op1 = sortear_opcion(posiciones, cantidad)
+    return correctas
 
 def juego_mayor_menor():
-    os.system("cls")
-    titulo_mayor_menor()
+    encabezado("MAYOR O MENOR", "96")
     pos = identificar_jugador()
-    reg = leer_registro(FD_JUGADORES, pos)
-    continuar = "S"
-    while reg.creditos > 0 and continuar == "S":
-        print()
-        print("Saldo actual:", reg.creditos)
-        if contar_activas() == 0:
-            print("No hay categorias activas. Un administrador debe dar de alta alguna.")
-            continuar = "N"
+    jug = leer_registro(FD_JUGADORES, pos)
+    continuar = True
+    while jug.creditos > 0 and continuar:
+        print("\nSaldo actual: " + formato_creditos(jug.creditos))
+        apuesta = pedir_apuesta(jug.creditos)
+        print("\nCategorías:")
+        if mostrar_categorias(True) == 0:
+            print("No hay categorías activas. Un administrador debe dar de alta alguna.")
+            continuar = False
         else:
-            apuesta = pedir_apuesta(reg.creditos)
-            cat_elegida = pedir_categoria_mayor_menor()
-            if contar_opciones(cat_elegida) < MIN_OPCIONES_CATEGORIA:
-                print("Esa categoria tiene menos de " + str(MIN_OPCIONES_CATEGORIA) + " opciones y no se puede jugar.")
-                print("Un administrador debe agregar mas opciones.")
-                continuar = "N"
+            cat = leer_registro(FD_CATEGORIAS, pedir_categoria(True))
+            if contar_opciones(cat.nro_categoria) < MIN_OPCIONES_CATEGORIA:
+                print("Esa categoría tiene menos de " + str(MIN_OPCIONES_CATEGORIA) + " opciones y no se puede jugar.")
+                print("Un administrador debe agregar más opciones.")
+                continuar = False
             else:
-                poscate = busqueda_categoria(cat_elegida, True)
-                regcate = leer_registro(FD_CATEGORIAS, poscate)
-                nombrecate = recortar(regcate.nombre_categoria)
-                preguntacate = recortar(regcate.pregunta)
-                op1 = determinaropciones(cat_elegida, True)
-                op2 = determinaropciones(cat_elegida, False)
-                correctas = 0
-                rondas = 0
-                while rondas != 6:
-                    print()
-                    print("Ronda", rondas + 1, "de 6 -", nombrecate)
-                    print(preguntacate)
-                    eleccion = pedir_eleccion(op1, op2)
-                    rondas = rondas + 1
-                    print("1-", recortar(op1.objeto), op1.valor, "/ 2-", recortar(op2.objeto), op2.valor)
-                    if (eleccion == 1 and op1.valor >= op2.valor) or (eleccion == 2 and op2.valor >= op1.valor):
-                        print("La respuesta es correcta!!!")
-                        correctas = correctas + 1
-                    else:
-                        print("Ups... la respuesta es incorrecta...")
-                    if rondas != 6:
-                        input("Presione Enter para continuar...")
-                        if op1.valor >= op2.valor:
-                            op2 = determinaropciones(cat_elegida, False)
-                        else:
-                            op1 = determinaropciones(cat_elegida, False)
-                print()
-                print("Aciertos:", correctas, "de 6")
-                if correctas >= 4:
-                    print("Felicidades!!! Ha ganado", apuesta, "creditos!!!")
+                correctas = jugar_partida_mayor_menor(cat)
+                print("\nAciertos: " + str(correctas) + " de " + str(CANT_RONDAS))
+                if correctas >= MIN_ACIERTOS:
+                    print("\033[92m¡Felicidades! Ganó " + formato_creditos(apuesta) + ".\033[0m")
                     registrar_resultado(pos, JUEGO_MAYOR_MENOR, True, apuesta)
                 else:
-                    print("Oh, no... Usted ha perdido", apuesta, "creditos.")
+                    print("\033[91mOh, no... Perdió " + formato_creditos(apuesta) + ".\033[0m")
                     registrar_resultado(pos, JUEGO_MAYOR_MENOR, False, -apuesta)
-                reg = leer_registro(FD_JUGADORES, pos)
-                print("Saldo actual:", reg.creditos)
-                if reg.creditos > 0:
-                    continuar = preguntar_continuar()
-    if reg.creditos <= 0:
-        print("No tiene mas creditos en su saldo")
-    input("Presione Enter para continuar...")
+                jug = leer_registro(FD_JUGADORES, pos)
+                print("Saldo actual: " + formato_creditos(jug.creditos))
+                if jug.creditos > 0:
+                    continuar = pedir_si_no("\n¿Desea volver a jugar?")
+    if jug.creditos <= 0:
+        print("No tiene más créditos en su saldo.")
+    pausa()
 
 
 """
-Declarativa de variables juego 2: Número Secreto
-MAX_INTENTOS : int (constante, intentos disponibles por partida)
-pos, numero_secreto, intentos : int
-numero, nom : str
-ganador : bool
+Declarativa de funciones y variables juego 2: Número Secreto
+MAX_INTENTOS, MIN_SECRETO, MAX_SECRETO : int (constantes)
+pos, numero_secreto, numero, intentos : int
+adivino : bool
 """
 MAX_INTENTOS = 5
+MIN_SECRETO = 1
+MAX_SECRETO = 100
 
 def juego_numero_secreto():
-    os.system("cls")
-    print("\033[4m\033[91mNÚMERO SECRETO\033[0m")
+    encabezado("NÚMERO SECRETO", "91")
     pos = identificar_jugador()
-    nom = recortar(leer_registro(FD_JUGADORES, pos).nombre)
-    numero_secreto=random.randint(1,100)
-    intentos=MAX_INTENTOS
-    ganador= False
-    while(intentos > 0 and ganador==False):
-        print("Usted tiene",intentos,"intentos")
-        numero = input("Ingrese un número entre 1 y 100: ")
-        while not numero.isdigit() or int(numero) < 1 or int(numero) > 100:
-            numero=input("Por favor, ingrese un número válido entre 1 y 100: ")
-        numero=int(numero)
-        intentos=intentos-1
-        if numero==numero_secreto:
-            ganador=True
+    numero_secreto = random.randint(MIN_SECRETO, MAX_SECRETO)
+    intentos = 0
+    adivino = False
+    while intentos < MAX_INTENTOS and not adivino:
+        print("\nLe quedan " + str(MAX_INTENTOS - intentos) + " intentos.")
+        numero = pedir_entero_rango("Ingrese un número entre " + str(MIN_SECRETO) + " y " + str(MAX_SECRETO) + ": ", MIN_SECRETO, MAX_SECRETO)
+        intentos = intentos + 1
+        if numero == numero_secreto:
+            adivino = True
+        elif numero > numero_secreto:
+            print("El número secreto es menor.")
         else:
-            if numero > numero_secreto:
-                print("El número secreto es menor")
-            else:
-                print("El número secreto es mayor")
-        if ganador==True:
-            print("¡¡Enhorabuena " + nom + "! Ganaste en " + str(MAX_INTENTOS - intentos) + " intentos. El número secreto era", numero_secreto)
-            registrar_resultado(pos, JUEGO_NUMERO_SECRETO, True, 0)
-        else:
-            if intentos==0:
-                print("Oh no, perdiste el juego")
-                print("El número secreto era", numero_secreto)
-                registrar_resultado(pos, JUEGO_NUMERO_SECRETO, False, 0)
-    input("Presione Enter para continuar...")
+            print("El número secreto es mayor.")
+    if adivino:
+        print("\n\033[92m¡Enhorabuena! Adivinaste el número " + str(numero_secreto) + " en " + str(intentos) + " intentos.\033[0m")
+    else:
+        print("\n\033[91mOh no, perdiste el juego. El número secreto era " + str(numero_secreto) + ".\033[0m")
+    registrar_resultado(pos, JUEGO_NUMERO_SECRETO, adivino, 0)
+    pausa()
 
 
 """
 Declarativa de funciones y variables juego 3: Blackjack
 CANT_CARTAS_MAZO, CANT_VALORES, MAX_CARTAS_MANO : int (constantes)
 PALOS : str (constante, un símbolo por palo)
-nombre, titular, texto_cartas, opcion_usuario, continua : str
+nombre, titular, texto_cartas, accion : str
 pos, carta, valor, palo, total, cant_ases, puntos_jugador, puntos_banca, resultado, i : int
 cant_cartas, cant_cartas_jugador, cant_cartas_banca : int
-jugando : bool
+jugando, otra : bool
 mazo : array de bool, tamaño CANT_CARTAS_MAZO (True = carta ya repartida)
 mano, mano_jugador, mano_banca : array de int, tamaño MAX_CARTAS_MANO
 Cada carta es un número de 0 a 51: carta % 13 es su valor (0 = "2" ... 12 = "A") y carta // 13 su palo.
@@ -837,9 +799,6 @@ CANT_VALORES = 13
 MAX_CARTAS_MANO = 12
 PALOS = "♠♥♦♣"
 
-def titulo_blackjack():
-    print("\033[4m\033[94mBLACKJACK SIMPLE\033[0m\n")
-
 def repartir_carta(mazo):
     # Un solo mazo: se sortea hasta encontrar una carta que no se haya repartido
     carta = random.randint(0, CANT_CARTAS_MAZO - 1)
@@ -847,6 +806,11 @@ def repartir_carta(mazo):
         carta = random.randint(0, CANT_CARTAS_MAZO - 1)
     mazo[carta] = True
     return carta
+
+def agregar_carta(mano, cant_cartas, mazo):
+    # Agrega a la mano una carta del mazo y devuelve la nueva cantidad de cartas
+    mano[cant_cartas] = repartir_carta(mazo)
+    return cant_cartas + 1
 
 def nombre_carta(carta):
     valor = carta % CANT_VALORES
@@ -877,7 +841,6 @@ def calcular_puntos(mano, cant_cartas):
                 total = total + 10
             case _:
                 total = total + (valor + 2)
-
     # Cada As vale 11, salvo que convenga contarlo como 1 para no pasarse de 21
     while total > 21 and cant_ases > 0:
         total = total - 10
@@ -895,29 +858,23 @@ def jugar_partida_blackjack(nombre):
     mazo = [False] * CANT_CARTAS_MAZO
     mano_jugador = [0] * MAX_CARTAS_MANO
     mano_banca = [0] * MAX_CARTAS_MANO
-
+    cant_cartas_jugador = 0
+    cant_cartas_banca = 0
     for i in range(2):
-        mano_jugador[i] = repartir_carta(mazo)
-    cant_cartas_jugador = 2
-    for i in range(2):
-        mano_banca[i] = repartir_carta(mazo)
-    cant_cartas_banca = 2
-
+        cant_cartas_jugador = agregar_carta(mano_jugador, cant_cartas_jugador, mazo)
+        cant_cartas_banca = agregar_carta(mano_banca, cant_cartas_banca, mazo)
     puntos_jugador = calcular_puntos(mano_jugador, cant_cartas_jugador)
     puntos_banca = calcular_puntos(mano_banca, cant_cartas_banca)
 
     print("Banca: " + nombre_carta(mano_banca[0]) + " [carta oculta]")
     mostrar_mano(nombre, mano_jugador, cant_cartas_jugador)
 
+    # Turno del jugador: pide cartas hasta plantarse, llegar a 21 o pasarse
     jugando = puntos_jugador < 21
     while jugando:
-        opcion_usuario = recortar(input("\n¿Desea Pedir otra carta o Plantarse?: ")).lower()
-        while opcion_usuario != "pedir" and opcion_usuario != "plantarse":
-            opcion_usuario = recortar(input("Ingrese una opción válida, Pedir o Plantarse: ")).lower()
-
-        if opcion_usuario == "pedir":
-            mano_jugador[cant_cartas_jugador] = repartir_carta(mazo)
-            cant_cartas_jugador = cant_cartas_jugador + 1
+        accion = pedir_entre_dos("\n¿Desea Pedir otra carta o Plantarse?: ", "pedir", "plantarse")
+        if accion == "pedir":
+            cant_cartas_jugador = agregar_carta(mano_jugador, cant_cartas_jugador, mazo)
             puntos_jugador = calcular_puntos(mano_jugador, cant_cartas_jugador)
             mostrar_mano(nombre, mano_jugador, cant_cartas_jugador)
             jugando = puntos_jugador < 21
@@ -928,13 +885,13 @@ def jugar_partida_blackjack(nombre):
         print("\n\033[91mTe pasaste de 21 con " + str(puntos_jugador) + " puntos. ¡Perdiste!\033[0m")
         resultado = -1
     else:
+        # Turno de la banca: pide con 16 o menos y se planta con 17 o más
         if puntos_jugador == 21:
             print("\n¡Llegaste a 21!")
         print("\nTurno de la Banca:")
         mostrar_mano("Banca", mano_banca, cant_cartas_banca)
         while puntos_banca < 17:
-            mano_banca[cant_cartas_banca] = repartir_carta(mazo)
-            cant_cartas_banca = cant_cartas_banca + 1
+            cant_cartas_banca = agregar_carta(mano_banca, cant_cartas_banca, mazo)
             puntos_banca = calcular_puntos(mano_banca, cant_cartas_banca)
             mostrar_mano("Banca", mano_banca, cant_cartas_banca)
 
@@ -953,105 +910,80 @@ def jugar_partida_blackjack(nombre):
     return resultado
 
 def juego_blackjack():
-    os.system("cls")
-    titulo_blackjack()
+    encabezado("BLACKJACK", "94")
     pos = identificar_jugador()
     nombre = recortar(leer_registro(FD_JUGADORES, pos).nombre)
-    print()
-
-    continua = "S"
-    while continua == "S":
+    otra = True
+    while otra:
+        print()
         resultado = jugar_partida_blackjack(nombre)
-        if resultado == 1:
-            registrar_resultado(pos, JUEGO_BLACKJACK, True, 0)
-        elif resultado == -1:
-            registrar_resultado(pos, JUEGO_BLACKJACK, False, 0)
-
-        continua = pedir_si_no("\n¿Desea jugar otra partida?")
-        if continua == "S":
-            os.system("cls")
-            titulo_blackjack()
+        # El empate no cuenta como partida ganada ni perdida
+        if resultado != 0:
+            registrar_resultado(pos, JUEGO_BLACKJACK, resultado == 1, 0)
+        otra = pedir_si_no("\n¿Desea jugar otra partida?")
+        if otra:
+            encabezado("BLACKJACK", "94")
 
 
 """
-Declarativa de variables juego 4: Par o Impar
-eleccion, continua, paridad : str
+Declarativa de funciones y variables juego 4: Par o Impar
+eleccion, paridad : str
 pos, dado1, dado2, suma : int
 apuesta : float
-acerto : bool
+continuar : bool
 jug : Jugador
 """
-def titulo_par_impar():
-    print("\033[4m\033[95mPAR O IMPAR\033[0m\n")
-
 def juego_par_impar():
-    os.system("cls")
-    titulo_par_impar()
+    encabezado("PAR O IMPAR", "95")
     pos = identificar_jugador()
     jug = leer_registro(FD_JUGADORES, pos)
+    continuar = True
+    while jug.creditos > 0 and continuar:
+        print("\nSaldo actual: " + formato_creditos(jug.creditos))
+        apuesta = pedir_apuesta(jug.creditos)
+        dado1 = random.randint(1, 6)
+        dado2 = random.randint(1, 6)
+        suma = dado1 + dado2
+        eleccion = pedir_entre_dos("Se tiraron dos dados. ¿La suma es Par o Impar?: ", "par", "impar")
+        if suma % 2 == 0:
+            paridad = "par"
+        else:
+            paridad = "impar"
 
+        print("\nSalieron " + str(dado1) + " y " + str(dado2) + ": la suma es " + str(suma) + ", un número " + paridad + ".")
+        if eleccion == paridad:
+            print("\033[92m¡Ganaste! Tu apuesta de " + formato_creditos(apuesta) + " se suma a tus créditos.\033[0m")
+            registrar_resultado(pos, JUEGO_PAR_IMPAR, True, apuesta)
+        else:
+            print("\033[91mPerdiste... Tu apuesta de " + formato_creditos(apuesta) + " se resta de tus créditos.\033[0m")
+            registrar_resultado(pos, JUEGO_PAR_IMPAR, False, -apuesta)
+        jug = leer_registro(FD_JUGADORES, pos)
+        print("Saldo actual: " + formato_creditos(jug.creditos))
+        if jug.creditos > 0:
+            continuar = pedir_si_no("\n¿Desea volver a jugar?")
     if jug.creditos <= 0:
-        print("Lo sentimos, no tiene créditos para jugar.")
-        input("\nPresione Enter para continuar...")
-    else:
-        continua = "S"
-        while continua == "S":
-            print("\nUsted tiene " + formato_creditos(jug.creditos) + " créditos disponibles.")
-            apuesta = pedir_apuesta(jug.creditos)
-
-            dado1 = random.randint(1, 6)
-            dado2 = random.randint(1, 6)
-            suma = dado1 + dado2
-
-            eleccion = recortar(input("Se tiraron dos dados. ¿La suma es Par o Impar?: ")).lower()
-            while eleccion != "par" and eleccion != "impar":
-                eleccion = recortar(input("Ingrese una opción válida, Par o Impar: ")).lower()
-
-            if suma % 2 == 0:
-                paridad = "par"
-            else:
-                paridad = "impar"
-            acerto = eleccion == paridad
-
-            print("\nSalieron " + str(dado1) + " y " + str(dado2) + ": la suma es " + str(suma) + ", un número " + paridad + ".")
-            if acerto:
-                print("\033[92m¡Ganaste! Tu apuesta de " + formato_creditos(apuesta) + " se suma a tus créditos.\033[0m")
-                registrar_resultado(pos, JUEGO_PAR_IMPAR, True, apuesta)
-            else:
-                print("\033[91mPerdiste... Tu apuesta de " + formato_creditos(apuesta) + " se resta de tus créditos.\033[0m")
-                registrar_resultado(pos, JUEGO_PAR_IMPAR, False, -apuesta)
-
-            jug = leer_registro(FD_JUGADORES, pos)
-            print("Tu saldo actual es de " + formato_creditos(jug.creditos) + ".")
-
-            if jug.creditos <= 0:
-                print("Que mal... ¡te quedaste sin créditos!")
-                input("\nPresione Enter para continuar...")
-                continua = "N"
-            else:
-                continua = pedir_si_no("\n¿Desea volver a jugar?")
-                if continua == "S":
-                    os.system("cls")
-                    titulo_par_impar()
+        print("No tiene más créditos para jugar.")
+    pausa()
 
 
 """
 Declarativa de funciones y variables del Reporte
-opc_reporte, nombre_buscado : str
+opc, nombre, nombre_buscado : str
 pos, cantidad, juego, ganadas, perdidas, i, j : int
 jugo_algo : bool
 jugadores : array de Jugador, tamaño cantidad
 jug, aux : Jugador
 """
 def nombre_juego(juego):
-    if juego == JUEGO_MAYOR_MENOR:
-        nombre = "\033[96mMayor o Menor\033[0m"
-    elif juego == JUEGO_NUMERO_SECRETO:
-        nombre = "\033[91mNúmero Secreto\033[0m"
-    elif juego == JUEGO_BLACKJACK:
-        nombre = "\033[94mBlackJack Simple\033[0m"
-    else:
-        nombre = "\033[95mPar o Impar\033[0m"
+    match juego:
+        case 0:
+            nombre = "\033[96mMayor o Menor\033[0m"
+        case 1:
+            nombre = "\033[91mNúmero Secreto\033[0m"
+        case 2:
+            nombre = "\033[94mBlackjack\033[0m"
+        case _:
+            nombre = "\033[95mPar o Impar\033[0m"
     return nombre
 
 def cargar_jugadores(cantidad):
@@ -1072,8 +1004,7 @@ def ordenar_por_creditos_descendente(jugadores, cantidad):
                 jugadores[j] = aux
 
 def reporte_jugadores_por_creditos():
-    os.system("cls")
-    print("........\033[93m\033[4mJUGADORES POR CANTIDAD DE CRÉDITOS\033[0m........\n")
+    encabezado("JUGADORES POR CANTIDAD DE CRÉDITOS", "93")
     cantidad = contar_registros(FD_JUGADORES)
     if cantidad == 0:
         print("Todavía no hay jugadores registrados.")
@@ -1082,14 +1013,12 @@ def reporte_jugadores_por_creditos():
         ordenar_por_creditos_descendente(jugadores, cantidad)
         for i in range(cantidad):
             print("   " + str(i + 1) + ". " + jugadores[i].nombre + " " + formato_creditos(jugadores[i].creditos))
-    input("\nPresione Enter para continuar...")
+    pausa()
 
 def reporte_juegos_de_jugador():
-    os.system("cls")
-    print("........\033[93m\033[4mJUEGOS JUGADOS POR UN JUGADOR\033[0m........\n")
+    encabezado("JUEGOS JUGADOS POR UN JUGADOR", "93")
     nombre_buscado = recortar(input("Ingrese el nombre del jugador a consultar: "))
     pos = buscar_jugador(nombre_buscado)
-
     if pos == -1:
         print("El jugador \"" + nombre_buscado + "\" no está registrado.")
     else:
@@ -1105,22 +1034,17 @@ def reporte_juegos_de_jugador():
         if not jugo_algo:
             print("   Todavía no ganó ni perdió ninguna partida.")
         print("Créditos restantes: " + formato_creditos(jug.creditos))
-    input("\nPresione Enter para continuar...")
+    pausa()
 
 def reporte():
-    opc_reporte = " "
-    while opc_reporte != "c":
-        os.system("cls")
-        print("........\033[93m\033[4mREPORTE\033[0m........ ")
+    opc = " "
+    while opc != "c":
+        encabezado("REPORTE", "93")
         print("a- Lista de jugadores ordenados de mayor a menor por créditos")
         print("b- Juegos jugados por un jugador")
         print("c- Volver al menú principal")
-
-        opc_reporte = recortar(input("Ingrese su opción: ")).lower()
-        while opc_reporte != "a" and opc_reporte != "b" and opc_reporte != "c":
-            opc_reporte = recortar(input("Ingreso inválido - reintente: ")).lower()
-
-        match opc_reporte:
+        opc = pedir_opcion("a", "c")
+        match opc:
             case "a":
                 reporte_jugadores_por_creditos()
             case "b":
@@ -1130,9 +1054,9 @@ def reporte():
 """
 Declarativa de funciones y variables de Administración de Juegos
 MAX_INTENTOS_CLAVE : int (constante)
-clave, nombre, pregunta, objeto, confirma, otra, opc_admin, opc_categorias, opc_opciones : str
+clave, nombre, pregunta, objeto, opc : str
 intentos, pos, nro_categoria, cantidad, valor : int
-acceso : bool
+acceso, otra : bool
 cat : Categoria
 op : Opcion
 """
@@ -1151,12 +1075,11 @@ def ingresar_clave_admin():
             print("Contraseña incorrecta. Le quedan " + str(MAX_INTENTOS_CLAVE - intentos) + " intentos.")
     if not acceso:
         print("\nSuperó los 3 intentos de ingresar contraseña, salga e intente nuevamente")
-        input("\nPresione Enter para continuar...")
+        pausa()
     return acceso
 
 def alta_categoria():
-    os.system("cls")
-    print("........\033[93m\033[4mALTA DE CATEGORÍA\033[0m........\n")
+    encabezado("ALTA DE CATEGORÍA", "93")
     nombre = pedir_nombre_categoria(-1)
     print("Formule la pregunta de modo que la respuesta correcta sea la opción de MAYOR valor.")
     pregunta = pedir_texto("Ingrese la pregunta: ", LARGO_PREGUNTA)
@@ -1170,11 +1093,10 @@ def alta_categoria():
 
     print("\nCategoría " + str(cat.nro_categoria) + " - " + nombre + " registrada correctamente.")
     print("Recuerde cargarle al menos " + str(MIN_OPCIONES_CATEGORIA) + " opciones para poder jugarla.")
-    input("\nPresione Enter para continuar...")
+    pausa()
 
 def modificacion_categoria():
-    os.system("cls")
-    print("........\033[93m\033[4mMODIFICACIÓN DE CATEGORÍA\033[0m........\n")
+    encabezado("MODIFICACIÓN DE CATEGORÍA", "93")
     if mostrar_categorias(True) == 0:
         print("No hay categorías activas para modificar.")
     else:
@@ -1186,41 +1108,34 @@ def modificacion_categoria():
         cat.nombre_categoria = ajustar_cadena(nombre, LARGO_NOMBRE_CATEGORIA)
         modificar_registro(FD_CATEGORIAS, pos, cat)
         print("\nLa categoría " + str(cat.nro_categoria) + " ahora se llama \"" + nombre + "\".")
-    input("\nPresione Enter para continuar...")
+    pausa()
 
 def baja_categoria():
-    os.system("cls")
-    print("........\033[93m\033[4mBAJA DE CATEGORÍA\033[0m........\n")
+    encabezado("BAJA DE CATEGORÍA", "93")
     if mostrar_categorias(True) == 0:
         print("No hay categorías activas para dar de baja.")
     else:
         print()
         pos = pedir_categoria(True)
         cat = leer_registro(FD_CATEGORIAS, pos)
-        confirma = pedir_si_no("¿Confirma la baja de la categoría \"" + recortar(cat.nombre_categoria) + "\"?")
-        if confirma == "S":
+        if pedir_si_no("¿Confirma la baja de la categoría \"" + recortar(cat.nombre_categoria) + "\"?"):
             cat.estado = "I"
             modificar_registro(FD_CATEGORIAS, pos, cat)
             print("La categoría " + str(cat.nro_categoria) + " quedó Inactiva.")
         else:
             print("Baja cancelada.")
-    input("\nPresione Enter para continuar...")
+    pausa()
 
 def administrar_categorias():
-    opc_categorias = " "
-    while opc_categorias != "4":
-        os.system("cls")
-        print("........\033[93m\033[4mADMINISTRAR CATEGORÍAS\033[0m........ ")
+    opc = " "
+    while opc != "4":
+        encabezado("ADMINISTRAR CATEGORÍAS", "93")
         print("1- Alta")
         print("2- Modificación")
         print("3- Baja")
         print("4- Volver")
-
-        opc_categorias = recortar(input("Ingrese su opción: "))
-        while opc_categorias != "1" and opc_categorias != "2" and opc_categorias != "3" and opc_categorias != "4":
-            opc_categorias = recortar(input("Ingreso inválido - reintente: "))
-
-        match opc_categorias:
+        opc = pedir_opcion("1", "4")
+        match opc:
             case "1":
                 alta_categoria()
             case "2":
@@ -1229,21 +1144,18 @@ def administrar_categorias():
                 baja_categoria()
 
 def alta_opciones():
-    os.system("cls")
-    print("........\033[93m\033[4mALTA DE OPCIONES\033[0m........\n")
+    encabezado("ALTA DE OPCIONES", "93")
     if mostrar_categorias(True) == 0:
         print("No hay categorías activas. Antes de registrar opciones se deben dar de alta categorías.")
-        input("\nPresione Enter para continuar...")
     else:
         print()
-        pos = pedir_categoria(True)
-        cat = leer_registro(FD_CATEGORIAS, pos)
+        cat = leer_registro(FD_CATEGORIAS, pedir_categoria(True))
         nro_categoria = cat.nro_categoria
         print("\nCategoría: " + recortar(cat.nombre_categoria))
         print("Pregunta: " + recortar(cat.pregunta))
 
-        otra = "S"
-        while otra == "S":
+        otra = True
+        while otra:
             objeto = pedir_texto("\nObjeto: ", LARGO_OBJETO)
             while existe_objeto(nro_categoria, objeto):
                 print("Error: \"" + objeto + "\" ya está cargado en esta categoría.")
@@ -1264,59 +1176,46 @@ def alta_opciones():
         print("\nLa categoría tiene " + str(cantidad) + " opciones cargadas.")
         if cantidad < MIN_OPCIONES_CATEGORIA:
             print("Atención: hacen falta al menos " + str(MIN_OPCIONES_CATEGORIA) + " opciones para poder jugarla.")
-        input("\nPresione Enter para continuar...")
+    pausa()
 
 def consulta_opciones():
-    os.system("cls")
-    print("........\033[93m\033[4mCONSULTA DE OPCIONES\033[0m........\n")
+    encabezado("CONSULTA DE OPCIONES", "93")
     if mostrar_categorias(False) == 0:
         print("No hay categorías registradas.")
     else:
         print()
-        pos = pedir_categoria(False)
-        cat = leer_registro(FD_CATEGORIAS, pos)
+        cat = leer_registro(FD_CATEGORIAS, pedir_categoria(False))
         print("\nCategoría " + str(cat.nro_categoria) + " - " + recortar(cat.nombre_categoria))
         print("Pregunta: " + recortar(cat.pregunta))
         if mostrar_opciones(cat.nro_categoria) == 0:
             print("   La categoría no tiene opciones cargadas.")
-    input("\nPresione Enter para continuar...")
+    pausa()
 
 def administrar_opciones():
-    opc_opciones = " "
-    while opc_opciones != "3":
-        os.system("cls")
-        print("........\033[93m\033[4mADMINISTRAR OPCIONES\033[0m........ ")
+    opc = " "
+    while opc != "3":
+        encabezado("ADMINISTRAR OPCIONES", "93")
         print("1- Alta")
         print("2- Consulta")
         print("3- Volver")
-
-        opc_opciones = recortar(input("Ingrese su opción: "))
-        while opc_opciones != "1" and opc_opciones != "2" and opc_opciones != "3":
-            opc_opciones = recortar(input("Ingreso inválido - reintente: "))
-
-        match opc_opciones:
+        opc = pedir_opcion("1", "3")
+        match opc:
             case "1":
                 alta_opciones()
             case "2":
                 consulta_opciones()
 
 def administracion_juegos():
-    os.system("cls")
-    print("........\033[93m\033[4mADMINISTRACIÓN DE JUEGOS\033[0m........\n")
+    encabezado("ADMINISTRACIÓN DE JUEGOS", "93")
     if ingresar_clave_admin():
-        opc_admin = " "
-        while opc_admin != "3":
-            os.system("cls")
-            print("........\033[93m\033[4mADMINISTRACIÓN DE JUEGOS\033[0m........ ")
+        opc = " "
+        while opc != "3":
+            encabezado("ADMINISTRACIÓN DE JUEGOS", "93")
             print("1- Administrar Categorías")
             print("2- Administrar Opciones")
             print("3- Volver")
-
-            opc_admin = recortar(input("Ingrese su opción: "))
-            while opc_admin != "1" and opc_admin != "2" and opc_admin != "3":
-                opc_admin = recortar(input("Ingreso inválido - reintente: "))
-
-            match opc_admin:
+            opc = pedir_opcion("1", "3")
+            match opc:
                 case "1":
                     administrar_categorias()
                 case "2":
@@ -1324,62 +1223,57 @@ def administracion_juegos():
 
 
 """
-Declarativa de funciones del menú principal
-"""
-def cartel_inicial():
-    os.system("cls")
-    print("+------------------------------------------------------------+")
-    print("|                                                            |")
-    print("|  JUEGOS DE APUESTA PROHIBIDOS PARA MENORES DE EDAD         |")
-    print("|                                                            |")
-    print("|     EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD           |")
-    print("|                                                            |")
-    print("+------------------------------------------------------------+")
-    input("\nPresione Enter para continuar...")
-
-def salir():
-    os.system("cls")
-    input("Gracias por jugar, no apueste, juega por diversión")
-
-def menu():
-    os.system("cls")
-    print("........\033[4m\033[92mMENÚ DE OPCIONES\033[0m ")
-    print("a- \033[96m↑ Juego del menor-mayor ↓\033[0m ")
-    print("b- \033[1m\033[91mAdivinar el número secreto [?]\033[0m ")
-    print("c- \033[94m♦ Blackjack ♦\033[0m ")
-    print("d- \033[95m[1] Par o impar [6]\033[0m ")
-    print("e- \033[93mReporte\033[0m ")
-    print("f- \033[93mAdministración de Juegos\033[0m ")
-    print("g- \033[97mSalir del programa\033[0m ")
-
-
-"""
-Programa principal
+Declarativa de funciones y variables del menú principal
 CLAVE_ADMIN : str (constante, contraseña de administrador)
 opc : str
 """
 CLAVE_ADMIN = "admin2026"
 
-# Si todavía no existen los archivos de categorías y opciones, se crean con datos de ejemplo
-if not os.path.exists(FD_CATEGORIAS) and not os.path.exists(FD_OPCIONES):
-    crear_datos_iniciales()
+def menu():
+    encabezado("MENÚ DE OPCIONES", "92")
+    print("a- \033[96m↑ Juego del menor-mayor ↓\033[0m")
+    print("b- \033[91mAdivinar el número secreto [?]\033[0m")
+    print("c- \033[94m♦ Blackjack ♦\033[0m")
+    print("d- \033[95m[1] Par o impar [6]\033[0m")
+    print("e- \033[93mReporte\033[0m")
+    print("f- \033[93mAdministración de Juegos\033[0m")
+    print("g- Salir del programa")
 
-cartel_inicial()
+def principal():
+    # Si todavía no existen los archivos de categorías y opciones, se crean con datos de ejemplo
+    if not os.path.exists(FD_CATEGORIAS) and not os.path.exists(FD_OPCIONES):
+        crear_datos_iniciales()
 
-opc = " "
-while opc != "g":
-    menu()
-    opc = recortar(input("Ingrese su opción: ")).lower()
+    os.system("cls")
+    cartel("JUEGOS DE APUESTA PROHIBIDOS PARA MENORES DE EDAD", "EL JUEGO PUEDE SER PERJUDICIAL PARA LA SALUD")
+    pausa()
 
-    while len(opc) != 1 or opc < "a" or opc > "g":
+    opc = " "
+    while opc != "g":
         menu()
-        opc = recortar(input("Ingreso inválido - reintente: ")).lower()
+        opc = pedir_opcion("a", "g")
+        match opc:
+            case "a":
+                juego_mayor_menor()
+            case "b":
+                juego_numero_secreto()
+            case "c":
+                juego_blackjack()
+            case "d":
+                juego_par_impar()
+            case "e":
+                reporte()
+            case "f":
+                administracion_juegos()
 
-    match opc:
-        case "a": juego_mayor_menor()
-        case "b": juego_numero_secreto()
-        case "c": juego_blackjack()
-        case "d": juego_par_impar()
-        case "e": reporte()
-        case "f": administracion_juegos()
-        case "g": salir()
+    os.system("cls")
+    cartel("Gracias por jugar, no apueste, juega por diversión", " ")
+    input("\nPresione Enter para salir...")
+
+
+"""
+Programa principal
+(sólo se ejecuta al correr main.py, no cuando los tests importan sus funciones)
+"""
+if __name__ == "__main__":
+    principal()
