@@ -6,6 +6,8 @@ Trabajo Práctico Nro. 3 - Suite de Juegos "Azar y Lógica" con registros y arch
 
 import random, os, pickle, getpass
 
+from TP2.main import juego1, juego2
+
 """
 Declarativa de registros
 Categoria:
@@ -849,16 +851,17 @@ def repartir_carta(mazo):
 def nombre_carta(carta):
     valor = carta % CANT_VALORES
     palo = carta // CANT_VALORES
-    if valor <= 8:
-        nombre = str(valor + 2)
-    elif valor == 9:
-        nombre = "J"
-    elif valor == 10:
-        nombre = "Q"
-    elif valor == 11:
-        nombre = "K"
-    else:
-        nombre = "A"
+    match valor:
+        case _ if valor <= 8:
+            nombre = str(valor + 2)
+        case 9:
+            nombre = "J"
+        case 10:
+            nombre = "Q"
+        case 11:
+            nombre = "K"
+        case _:
+            nombre = "A"
     return nombre + PALOS[palo]
 
 def calcular_puntos(mano, cant_cartas):
@@ -866,13 +869,14 @@ def calcular_puntos(mano, cant_cartas):
     cant_ases = 0
     for i in range(cant_cartas):
         valor = mano[i] % CANT_VALORES
-        if valor == 12:
-            total = total + 11
-            cant_ases = cant_ases + 1
-        elif valor >= 9:
-            total = total + 10
-        else:
-            total = total + (valor + 2)
+        match valor:
+            case 12:
+                total = total + 11
+                cant_ases = cant_ases + 1
+            case _ if valor >= 9:
+                total = total + 10
+            case _:
+                total = total + (valor + 2)
 
     # Cada As vale 11, salvo que convenga contarlo como 1 para no pasarse de 21
     while total > 21 and cant_ases > 0:
@@ -1116,10 +1120,11 @@ def reporte():
         while opc_reporte != "a" and opc_reporte != "b" and opc_reporte != "c":
             opc_reporte = recortar(input("Ingreso inválido - reintente: ")).lower()
 
-        if opc_reporte == "a":
-            reporte_jugadores_por_creditos()
-        elif opc_reporte == "b":
-            reporte_juegos_de_jugador()
+        match opc_reporte:
+            case "a":
+                reporte_jugadores_por_creditos()
+            case "b":
+                reporte_juegos_de_jugador()
 
 
 """
@@ -1215,12 +1220,13 @@ def administrar_categorias():
         while opc_categorias != "1" and opc_categorias != "2" and opc_categorias != "3" and opc_categorias != "4":
             opc_categorias = recortar(input("Ingreso inválido - reintente: "))
 
-        if opc_categorias == "1":
-            alta_categoria()
-        elif opc_categorias == "2":
-            modificacion_categoria()
-        elif opc_categorias == "3":
-            baja_categoria()
+        match opc_categorias:
+            case "1":
+                alta_categoria()
+            case "2":
+                modificacion_categoria()
+            case "3":
+                baja_categoria()
 
 def alta_opciones():
     os.system("cls")
@@ -1288,10 +1294,11 @@ def administrar_opciones():
         while opc_opciones != "1" and opc_opciones != "2" and opc_opciones != "3":
             opc_opciones = recortar(input("Ingreso inválido - reintente: "))
 
-        if opc_opciones == "1":
-            alta_opciones()
-        elif opc_opciones == "2":
-            consulta_opciones()
+        match opc_opciones:
+            case "1":
+                alta_opciones()
+            case "2":
+                consulta_opciones()
 
 def administracion_juegos():
     os.system("cls")
@@ -1309,10 +1316,11 @@ def administracion_juegos():
             while opc_admin != "1" and opc_admin != "2" and opc_admin != "3":
                 opc_admin = recortar(input("Ingreso inválido - reintente: "))
 
-            if opc_admin == "1":
-                administrar_categorias()
-            elif opc_admin == "2":
-                administrar_opciones()
+            match opc_admin:
+                case "1":
+                    administrar_categorias()
+                case "2":
+                    administrar_opciones()
 
 
 """
@@ -1367,17 +1375,11 @@ while opc != "g":
         menu()
         opc = recortar(input("Ingreso inválido - reintente: ")).lower()
 
-    if opc == "a":
-        juego_mayor_menor()
-    elif opc == "b":
-        juego_numero_secreto()
-    elif opc == "c":
-        juego_blackjack()
-    elif opc == "d":
-        juego_par_impar()
-    elif opc == "e":
-        reporte()
-    elif opc == "f":
-        administracion_juegos()
-    elif opc == "g":
-        salir()
+    match opc:
+        case "a": juego_mayor_menor()
+        case "b": juego_numero_secreto()
+        case "c": juego_blackjack()
+        case "d": juego_par_impar()
+        case "e": reporte()
+        case "f": administracion_juegos()
+        case "g": salir()
